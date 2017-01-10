@@ -78,7 +78,7 @@ public class Snake {
 			terminal.applyForegroundColor(Terminal.Color.BLUE);
 			terminal.applyBackgroundColor(Terminal.Color.BLUE);
 			terminal.moveCursor(i.col, i.row);
-			terminal.putCharacter('█');
+			terminal.putCharacter('-');
 		}
 
 		terminal.moveCursor(4, 0);
@@ -86,17 +86,19 @@ public class Snake {
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("Score: " + score, terminal);
 
-		Position[] directions = new Position[] { new Position(1, 0), // дясно
-				new Position(-1, 0), // ляво
-				new Position(0, 1), // нагоре
-				new Position(0, -1), // надолу
+		Position[] directions = new Position[] { new Position(1, 0), // right
+				new Position(-1, 0), // left
+				new Position(0, 1), // up
+				new Position(0, -1), // down
 		};
 
 		// Snake body
 		Queue<Position> snakeBody = new LinkedList<Position>();
-		for (int segment = 0; segment <= 5; segment++) {
-			snakeBody.add(new Position(terminalSize.getRows() / 2, segment));
+		for (int segment = 2; segment <= 7; segment++) {
+			snakeBody.offer(new Position(segment, terminalSize.getRows() / 2));
 		}
+		Position snakeHead = new Position(8, terminalSize.getRows() / 2);
+		printSnakeBody(terminal, snakeBody, snakeHead);
 	}
 
 	// Print to console (terminal)
@@ -106,8 +108,22 @@ public class Snake {
 			terminal.putCharacter(stringToChar[i]);
 		}
 	}
-	private static void printSnakeBody (){
-		
+
+	private static Position printSnakeBody(Terminal terminal, Queue<Position> snakeBody, Position snakeHeadNewPosition) {
+		Position snakeHead;
+		snakeBody.offer(snakeHeadNewPosition);
+		snakeHead=snakeHeadNewPosition;
+		for (Position segmentOfSnake : snakeBody) {
+			terminal.applyForegroundColor(Terminal.Color.YELLOW);
+			terminal.applyBackgroundColor(Terminal.Color.BLACK);
+			terminal.moveCursor(segmentOfSnake.col, segmentOfSnake.row);
+			if (segmentOfSnake.equals(snakeHeadNewPosition) == false) {
+				terminal.putCharacter('₪');
+			} else {
+				terminal.putCharacter('o');
+			}
+		}
+		return snakeHead;
 	}
 
 }
