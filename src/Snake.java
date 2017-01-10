@@ -1,5 +1,7 @@
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.input.Key;
@@ -8,6 +10,7 @@ import com.googlecode.lanterna.terminal.TerminalSize;
 
 class Position {
 	public int row, col;
+
 	public Position(int col, int row) {
 		this.col = col;
 		this.row = row;
@@ -30,14 +33,14 @@ public class Snake {
 		terminal.enterPrivateMode();
 		TerminalSize terminalSize = terminal.getTerminalSize();
 		terminal.setCursorVisible(false);
-		
+
 		// Старт на играта или изход
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() / 2 - 2);
 		write("Press any key to START ", terminal);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() - 2);
 		terminal.applyForegroundColor(Terminal.Color.BLUE);
 		write("or Press Escape to EXIT", terminal);
-		
+
 		while (true) {
 			Key p = terminal.readInput();
 			if (p != null) {
@@ -83,20 +86,28 @@ public class Snake {
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("Score: " + score, terminal);
 
-		Position[] directions = new Position[] { 
-				new Position(1, 0), // дясно
+		Position[] directions = new Position[] { new Position(1, 0), // дясно
 				new Position(-1, 0), // ляво
 				new Position(0, 1), // нагоре
 				new Position(0, -1), // надолу
-		}; 
-		
+		};
+
+		// Snake body
+		Queue<Position> snakeBody = new LinkedList<Position>();
+		for (int segment = 0; segment <= 5; segment++) {
+			snakeBody.add(new Position(terminalSize.getRows() / 2, segment));
+		}
 	}
-	// метод за отпечатване на конзолата
+
+	// Print to console (terminal)
 	private static void write(String text, Terminal terminal) {
 		char[] stringToChar = text.toCharArray();
 		for (int i = 0; i < text.length(); i++) {
 			terminal.putCharacter(stringToChar[i]);
 		}
+	}
+	private static void printSnakeBody (){
+		
 	}
 
 }
