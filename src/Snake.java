@@ -104,12 +104,13 @@ public class Snake {
 		}
 		Position snakeHead = new Position(8, terminalSize.getRows() / 2);
 		printSnakeBody(terminal, snakeBody, snakeHead);
-		System.out.println("Snake length: "+snakeBody.size());
 		
 		// Print first snakeFood (random position)
 		Position snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
 		terminal.putCharacter('@');
-		System.out.println("Snake food coordinates: "+snakeFood.col+", "+snakeFood.row);
+		
+		// Game engine info
+		infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
 	}
 
 	// Print to console (terminal)
@@ -120,7 +121,7 @@ public class Snake {
 		}
 	}
 
-	private static Position printSnakeBody(Terminal terminal, Queue<Position> snakeBody,
+	public static Position printSnakeBody(Terminal terminal, Queue<Position> snakeBody,
 			Position snakeHeadNewPosition) {
 		Position snakeHead;
 		snakeBody.offer(snakeHeadNewPosition);
@@ -138,7 +139,7 @@ public class Snake {
 		return snakeHead;
 	}
 
-	private static Position printSnakeFood(Terminal terminal, TerminalSize terminalSize,
+	public static Position printSnakeFood(Terminal terminal, TerminalSize terminalSize,
 			ArrayList<Position> borderLines, Queue<Position> snakeBody) {
 		Position foodPosition;
 		int foodColumn;
@@ -164,4 +165,13 @@ public class Snake {
 		terminal.applyForegroundColor(Terminal.Color.GREEN);
 		return foodPosition;
 	}
+	public static void infoGameEngine (Terminal terminal, TerminalSize terminalSize,
+			Position foodPosition, Queue<Position> snakeBody, Position snakeHead) {
+		System.out.println("Terminal size: \nColumns - "+terminalSize.getColumns()+", Rows - "+terminalSize.getRows());
+		System.out.println("Snake length: "+snakeBody.size());
+		System.out.println("Snake head coordinates: "+snakeHead.col+", "+snakeHead.row);
+		System.out.println("Snake food coordinates: "+foodPosition.col+", "+foodPosition.row);
+
+	}
+	
 }
