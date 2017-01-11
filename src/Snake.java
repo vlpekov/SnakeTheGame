@@ -176,18 +176,60 @@ public class Snake {
 							e.printStackTrace();
 						}
 						flashingText = !flashingText;
-						
 					}
 
 				}
-				
+
 				if (pressedKey.getKind() == Key.Kind.Escape) {
 					terminal.exitPrivateMode();
 					System.exit(0);
 				}
 			}
+			// The snake moves
 			Position newDirection = directions[direction];
 			snakeHead = new Position(snakeHead.col + newDirection.col, snakeHead.row + newDirection.row);
+
+			// The snake can die
+			boolean snakeSuicide = false;
+			boolean crashedIntoWall = false;
+			for (Position i : snakeBody) {
+				if (snakeHead.row == i.row && snakeHead.col == i.col) {
+					snakeSuicide = true;
+				}
+			}
+			for (Position i : borderLines) {
+				if (snakeHead.row == i.row && snakeHead.col == i.col) {
+					crashedIntoWall = true;
+				}
+			}
+			if (crashedIntoWall || snakeSuicide) {
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 9, terminalSize.getRows() / 2-4);
+				write("G A M E   O V E R!", terminal, true);
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 6, terminalSize.getRows() / 2-2);
+				write("Your score: "+score, terminal, true);
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() / 2+2);
+				write("Press Escape for EXIT", terminal, true);
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows() / 2+3);
+				write("or", terminal, true);
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows() / 2+4);
+				write("Press Enter to play again", terminal, true);
+				while (true) {
+					Key keyAfterGameOver = terminal.readInput();
+					if (keyAfterGameOver != null) {
+						// Restart
+						if (keyAfterGameOver.getKind() == Key.Kind.Enter) {
+							terminal.exitPrivateMode();
+							new Snake();
+							Snake.main(args);
+						}
+						// Exit
+						if (keyAfterGameOver.getKind() == Key.Kind.Escape) {
+							terminal.exitPrivateMode();
+							System.exit(0);
+						}
+					}
+				}
+			}
 			snakeHead = printSnakeBody(terminal, snakeBody, snakeHead);
 			Position removeLast = snakeBody.poll();
 			terminal.moveCursor(removeLast.col, removeLast.row);
