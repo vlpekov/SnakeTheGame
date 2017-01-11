@@ -42,10 +42,10 @@ public class Snake {
 		
 		// Start the game or exit
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() / 2 - 2);
-		write("Press any key to START ", terminal);
+		write("Press any key to START ", terminal, true);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() - 2);
 		terminal.applyForegroundColor(Terminal.Color.BLUE);
-		write("or Press Escape to EXIT", terminal);
+		write("or Press Escape to EXIT", terminal, true);
 
 		while (true) {
 			Key pressedKey = terminal.readInput();
@@ -62,35 +62,37 @@ public class Snake {
 		}
 		terminal.clearScreen();
 
-		// Borderlines of the playing field
-		ArrayList<Position> borderLines = new ArrayList<Position>();
-		// top wall
-		for (int col = 0; col <= terminalSize.getColumns(); col++) {
-			borderLines.add(new Position(col, 0));
-		}
-		// bottom wall
-		for (int col = 0; col <= terminalSize.getColumns(); col++) {
-			borderLines.add(new Position(col, terminalSize.getRows() - 1));
-		}
-		// left wall
-		for (int row = 0; row <= terminalSize.getRows(); row++) {
-			borderLines.add(new Position(0, row));
-		}
-		// right wall
-		for (int row = 0; row <= terminalSize.getRows(); row++) {
-			borderLines.add(new Position(terminalSize.getColumns() - 1, row));
-		}
-		for (Position i : borderLines) {
-			terminal.applyForegroundColor(Terminal.Color.BLUE);
-			terminal.applyBackgroundColor(Terminal.Color.BLUE);
-			terminal.moveCursor(i.col, i.row);
-			terminal.putCharacter('-');
-		}
-
-		terminal.moveCursor(4, 0);
-		terminal.applyForegroundColor(Terminal.Color.WHITE);
-		terminal.applyBackgroundColor(Terminal.Color.BLUE);
-		write("Score: " + score, terminal);
+//		// Borderlines of the playing field
+//		ArrayList<Position> borderLines = new ArrayList<Position>();
+//		// top wall
+//		for (int col = 0; col <= terminalSize.getColumns(); col++) {
+//			borderLines.add(new Position(col, 0));
+//		}
+//		// bottom wall
+//		for (int col = 0; col <= terminalSize.getColumns(); col++) {
+//			borderLines.add(new Position(col, terminalSize.getRows() - 1));
+//		}
+//		// left wall
+//		for (int row = 0; row <= terminalSize.getRows(); row++) {
+//			borderLines.add(new Position(0, row));
+//		}
+//		// right wall
+//		for (int row = 0; row <= terminalSize.getRows(); row++) {
+//			borderLines.add(new Position(terminalSize.getColumns() - 1, row));
+//		}
+//		for (Position i : borderLines) {
+//			terminal.applyForegroundColor(Terminal.Color.BLUE);
+//			terminal.applyBackgroundColor(Terminal.Color.BLUE);
+//			terminal.moveCursor(i.col, i.row);
+//			terminal.putCharacter('-');
+//		}
+//
+//		terminal.moveCursor(4, 0);
+//		terminal.applyForegroundColor(Terminal.Color.WHITE);
+//		terminal.applyBackgroundColor(Terminal.Color.BLUE);
+//		write("Score: " + score, terminal, false);
+//		printBorders(terminal, terminalSize, score);
+		ArrayList<Position> borderLines = printBorders(terminal, terminalSize, score);
 
 		// Array: coordinates of the four directions
 		Position[] directions = new Position[] { 
@@ -134,27 +136,28 @@ public class Snake {
 					if (direction != 1)
 						direction = 0;
 				}
-
+				// Pause
 				if (pressedKey.getKind() == Key.Kind.Enter) {
 					Toolkit.getDefaultToolkit().beep();
 					terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 - 2);
-					write("P A U S E", terminal);
-					boolean flashing = true;
-					System.out.println(flashing);
+					terminal.applyForegroundColor(Terminal.Color.WHITE);
+					write("P A U S E", terminal, false);
+					boolean flashingText = true;
 					while (true) {
 						Key pauseKey = terminal.readInput();
-						if (flashing==false) {
-							terminal.applyForegroundColor(Terminal.Color.WHITE);
+						if (flashingText==false) {
+							terminal.applyForegroundColor(Terminal.Color.CYAN);
 							terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2);
-							write("Press any key to continue", terminal);
+							write("Press any key to continue", terminal, false);
 							
-						} else if (flashing==true){
+						} else if (flashingText==true){
 							terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2);
 							terminal.applyForegroundColor(Terminal.Color.BLACK);
-							write("Press any key to continue", terminal);
+							write("Press any key to continue", terminal, false);
 						}
 						if (pauseKey != null) {
 							terminal.clearScreen();
+							printBorders(terminal, terminalSize, score);
 							printSnakeBody(terminal, snakeBody, snakeHead);
 							terminal.moveCursor(snakeFood.col, snakeFood.row);
 							terminal.applyForegroundColor(Terminal.Color.GREEN);
@@ -167,8 +170,7 @@ public class Snake {
 
 							e.printStackTrace();
 						}
-						flashing = !flashing;
-						System.out.println(flashing);
+						flashingText = !flashingText;
 						
 					}
 
@@ -183,12 +185,15 @@ public class Snake {
 	}
 
 	// Print to console (terminal)
-	private static void write(String text, Terminal terminal) {
+	private static void write(String text, Terminal terminal, boolean infoLengh) {
+		boolean printStringLenth = infoLengh;
 		char[] stringToChar = text.toCharArray();
 		for (int i = 0; i < text.length(); i++) {
 			terminal.putCharacter(stringToChar[i]);
 		}
-		System.out.println("Printed text: "+text + ", (length: " + stringToChar.length+")");
+		if (printStringLenth) {
+			System.out.println("Printed text: " + text + ", (length: " + stringToChar.length + ")");
+		}
 	}
 
 	public static Position printSnakeBody(Terminal terminal, Queue<Position> snakeBody,
@@ -243,4 +248,38 @@ public class Snake {
 
 	}
 	
+	public static ArrayList<Position> printBorders (Terminal terminal, TerminalSize terminalSize, short score) {
+		// Borderlines of the playing field
+
+		ArrayList<Position> borderLines = new ArrayList<Position>();
+		// top wall
+		for (int col = 0; col <= terminalSize.getColumns(); col++) {
+			borderLines.add(new Position(col, 0));
+		}
+		// bottom wall
+		for (int col = 0; col <= terminalSize.getColumns(); col++) {
+			borderLines.add(new Position(col, terminalSize.getRows() - 1));
+		}
+		// left wall
+		for (int row = 0; row <= terminalSize.getRows(); row++) {
+			borderLines.add(new Position(0, row));
+		}
+		// right wall
+		for (int row = 0; row <= terminalSize.getRows(); row++) {
+			borderLines.add(new Position(terminalSize.getColumns() - 1, row));
+		}
+		for (Position i : borderLines) {
+			terminal.applyForegroundColor(Terminal.Color.BLUE);
+			terminal.applyBackgroundColor(Terminal.Color.BLUE);
+			terminal.moveCursor(i.col, i.row);
+			terminal.putCharacter('-');
+		}
+
+		terminal.moveCursor(4, 0);
+		terminal.applyForegroundColor(Terminal.Color.WHITE);
+		terminal.applyBackgroundColor(Terminal.Color.BLUE);
+		write("Score: " + score, terminal, false);
+		
+		return borderLines;
+	}
 }
