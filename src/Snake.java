@@ -203,16 +203,9 @@ public class Snake {
 				}
 			}
 			if (crashedIntoWall || snakeSuicide) {
-				terminal.moveCursor(terminalSize.getColumns() / 2 - 9, terminalSize.getRows() / 2-4);
-				write("G A M E   O V E R!", terminal, true);
-				terminal.moveCursor(terminalSize.getColumns() / 2 - 6, terminalSize.getRows() / 2-2);
-				write("Your score: "+score, terminal, true);
-				terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() / 2+2);
-				write("Press Escape for EXIT", terminal, true);
-				terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows() / 2+3);
-				write("or", terminal, true);
-				terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows() / 2+4);
-				write("Press Enter to play again", terminal, true);
+				
+				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score);
+				gameOverMsg(terminal, terminalSize, score);
 				while (true) {
 					Key keyAfterGameOver = terminal.readInput();
 					if (keyAfterGameOver != null) {
@@ -342,5 +335,68 @@ public class Snake {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void gameOver(Terminal terminal, TerminalSize terminalSize, Position snakeHead,
+			ArrayList<Position> borderLines, Queue<Position> snakeBody, short score) {
+		for (int flashTimes = 1; flashTimes < 10; flashTimes++) {
+			if (flashTimes % 2 == 0) {
+				printBorders(terminal, terminalSize, score);
+				printSnakeBody(terminal, snakeBody, snakeHead);
+
+			} else if (flashTimes % 2 != 0) {
+				terminal.clearScreen();
+				printBorders(terminal, terminalSize, score);
+			}
+		try {
+			Thread.sleep((int) 350);
+		} catch (InterruptedException e) {
+
+			e.printStackTrace();
+		}
+		}
+	}
+	public static void gameOverMsg (Terminal terminal, TerminalSize terminalSize, short score) {
+		String[][] sad = { { "	                                               " },
+				{ "	   /██████   /██████  /██      /██ /████████   " },
+				{ "	  /██__  ██ /██__  ██| ███    /███| ██_____/   " },
+				{ "	 | ██  \\__/| ██  \\ ██| ████  /████| ██         " },
+				{ "	 | ██ /████| ████████| ██ ██/██ ██| █████      " },
+				{ "	 | ██|_  ██| ██__  ██| ██  ███| ██| ██__/      " },
+				{ "	 | ██  \\ ██| ██  | ██| ██\\  █ | ██| ██         " },
+				{ "	 |  ██████/| ██  | ██| ██ \\/  | ██| ████████   " },
+				{ "	  \\______/ |__/  |__/|__/     |__/|________/   " },
+
+				{ "	                                               " },
+				{ "	   /██████  /██    /██ /████████ /███████      " },
+				{ "	  /██__  ██| ██   | ██| ██_____/| ██__  ██     " },
+				{ "	 | ██  \\ ██| ██   | ██| ██      | ██  \\ ██     " },
+				{ "	 | ██  | ██|  ██ / ██/| █████   | ███████/     " },
+				{ "	 | ██  | ██ \\  ██ ██/ | ██__/   | ██__  ██     " },
+				{ "	 | ██  | ██  \\  ███/  | ██      | ██  \\ ██     " },
+				{ "	 |  ██████/   \\  █/   | ████████| ██  | ██     " },
+				{ "	  \\______/     \\_/    |________/|__/  |__/     " },
+				{ "	                                               " },
+
+		};     
+		terminal.clearScreen();
+		terminal.applyForegroundColor(Terminal.Color.YELLOW);
+		terminal.applyBackgroundColor(Terminal.Color.RED);
+		for (int i = 0; i < sad.length; i++) {
+			// String rowString = Arrays.toString(sad[i]);
+			terminal.moveCursor(terminalSize.getColumns() / 2 - 25, 4 + i);
+			write(Arrays.toString(sad[i]), terminal, true);
+			// System.out.println(Arrays.toString(sad[i]));}
+		}
+		terminal.applyForegroundColor(Terminal.Color.WHITE);
+		terminal.applyBackgroundColor(Terminal.Color.BLACK);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 5, 3);
+		write("Your score: "+score, terminal, true);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows()-5);
+		write("Press Escape for EXIT", terminal, true);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows()-4);
+		write("or", terminal, true);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows()-3);
+		write("Press Enter to play again", terminal, true);
 	}
 }
