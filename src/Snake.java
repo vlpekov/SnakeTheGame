@@ -25,6 +25,7 @@ public class Snake {
 	public static void main(String[] args) {
 		
 		int direction=0;
+		int speed = 200;
 		short score = 0;
 		
 
@@ -98,8 +99,8 @@ public class Snake {
 		Position[] directions = new Position[] { 
 				new Position(1, 0), // right  index 0
 				new Position(-1, 0), // left  index 1
-				new Position(0, 1), // up     index 2
-				new Position(0, -1), // down  index 3
+				new Position(0, 1), // down     index 2
+				new Position(0, -1), // up  index 3
 		};
 
 		// Snake body
@@ -121,12 +122,12 @@ public class Snake {
 			if (pressedKey != null) {
 				// System.out.println(pressedKey);
 				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
-					if (direction != 3)
-						direction = 2;
-				}
-				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
 					if (direction != 2)
 						direction = 3;
+				}
+				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
+					if (direction != 3)
+						direction = 2;
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowLeft) {
 					if (direction != 0)
@@ -181,6 +182,13 @@ public class Snake {
 					System.exit(0);
 				}
 			}
+			Position newDirection = directions[direction];
+			snakeHead = new Position(snakeHead.col + newDirection.col, snakeHead.row + newDirection.row);
+			snakeHead = printSnakeBody(terminal, snakeBody, snakeHead);
+			Position removeLast = snakeBody.poll();
+			terminal.moveCursor(removeLast.col, removeLast.row);
+			terminal.putCharacter(' ');
+			delay(speed);
 		}
 	}
 
@@ -281,5 +289,12 @@ public class Snake {
 		write("Score: " + score, terminal, false);
 		
 		return borderLines;
+	}
+	private static void delay(int speed) {
+		try {
+			Thread.sleep(speed);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
