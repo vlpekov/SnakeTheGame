@@ -1,3 +1,4 @@
+import java.awt.Toolkit;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,8 +23,10 @@ class Position {
 public class Snake {
 
 	public static void main(String[] args) {
-
+		
+		int direction=0;
 		short score = 0;
+		
 
 		/*
 		 * Setting the Lanterna Terminal (New Console)
@@ -91,10 +94,10 @@ public class Snake {
 
 		// Array: coordinates of the four directions
 		Position[] directions = new Position[] { 
-				new Position(1, 0), // right
-				new Position(-1, 0), // left
-				new Position(0, 1), // up
-				new Position(0, -1), // down
+				new Position(1, 0), // right  index 0
+				new Position(-1, 0), // left  index 1
+				new Position(0, 1), // up     index 2
+				new Position(0, -1), // down  index 3
 		};
 
 		// Snake body
@@ -107,10 +110,76 @@ public class Snake {
 		
 		// Print first snakeFood (random position)
 		Position snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
-		terminal.putCharacter('@');
+//		terminal.putCharacter('@');
 		
 		// Game engine info
 		infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
+		while (true) {
+			Key pressedKey = terminal.readInput();
+			if (pressedKey != null) {
+				// System.out.println(pressedKey);
+				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
+					if (direction != 3)
+						direction = 2;
+				}
+				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
+					if (direction != 2)
+						direction = 3;
+				}
+				if (pressedKey.getKind() == Key.Kind.ArrowLeft) {
+					if (direction != 0)
+						direction = 1;
+				}
+				if (pressedKey.getKind() == Key.Kind.ArrowRight) {
+					if (direction != 1)
+						direction = 0;
+				}
+
+				if (pressedKey.getKind() == Key.Kind.Enter) {
+					Toolkit.getDefaultToolkit().beep();
+					terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 - 2);
+					write("P A U S E", terminal);
+					boolean flashing = true;
+					System.out.println(flashing);
+					while (true) {
+						Key pauseKey = terminal.readInput();
+						if (flashing==false) {
+							terminal.applyForegroundColor(Terminal.Color.WHITE);
+							terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2);
+							write("Press any key to continue", terminal);
+							
+						} else if (flashing==true){
+							terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2);
+							terminal.applyForegroundColor(Terminal.Color.BLACK);
+							write("Press any key to continue", terminal);
+						}
+						if (pauseKey != null) {
+							terminal.clearScreen();
+							printSnakeBody(terminal, snakeBody, snakeHead);
+							terminal.moveCursor(snakeFood.col, snakeFood.row);
+							terminal.applyForegroundColor(Terminal.Color.GREEN);
+							terminal.putCharacter('@');
+							break;
+						}
+						try {
+							Thread.sleep((int) 500);
+						} catch (InterruptedException e) {
+
+							e.printStackTrace();
+						}
+						flashing = !flashing;
+						System.out.println(flashing);
+						
+					}
+
+				}
+				
+				if (pressedKey.getKind() == Key.Kind.Escape) {
+					terminal.exitPrivateMode();
+					System.exit(0);
+				}
+			}
+		}
 	}
 
 	// Print to console (terminal)
@@ -119,6 +188,7 @@ public class Snake {
 		for (int i = 0; i < text.length(); i++) {
 			terminal.putCharacter(stringToChar[i]);
 		}
+		System.out.println("Printed text: "+text + ", (length: " + stringToChar.length+")");
 	}
 
 	public static Position printSnakeBody(Terminal terminal, Queue<Position> snakeBody,
@@ -158,11 +228,10 @@ public class Snake {
 					isInSnake = true;
 				}
 			}
-
-
 		} while (isInSnake == true);
 		terminal.moveCursor(foodPosition.col, foodPosition.row);
 		terminal.applyForegroundColor(Terminal.Color.GREEN);
+		terminal.putCharacter('@');
 		return foodPosition;
 	}
 	public static void infoGameEngine (Terminal terminal, TerminalSize terminalSize,
