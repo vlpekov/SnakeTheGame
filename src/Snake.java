@@ -102,7 +102,11 @@ public class Snake {
 				new Position(0, 1), // down     index 2
 				new Position(0, -1), // up  index 3
 		};
-
+		byte right = 0;
+		byte left = 1;
+		byte down = 2;
+		byte up = 3;
+		
 		// Snake body
 		Queue<Position> snakeBody = new LinkedList<Position>();
 		for (int segment = 2; segment <= 7; segment++) {
@@ -122,20 +126,20 @@ public class Snake {
 			if (pressedKey != null) {
 				// System.out.println(pressedKey);
 				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
-					if (direction != 2)
-						direction = 3;
+					if (direction != down)
+						direction = up;
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
-					if (direction != 3)
-						direction = 2;
+					if (direction != up)
+						direction = down;
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowLeft) {
-					if (direction != 0)
-						direction = 1;
+					if (direction != right)
+						direction = left;
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowRight) {
-					if (direction != 1)
-						direction = 0;
+					if (direction != left)
+						direction = right;
 				}
 				// Pause
 				if (pressedKey.getKind() == Key.Kind.Enter) {
