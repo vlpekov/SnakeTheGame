@@ -1,5 +1,6 @@
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -8,6 +9,7 @@ import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
+// new class: to hold the coordinates of each element
 class Position {
 	public int row, col;
 
@@ -21,20 +23,21 @@ public class Snake {
 
 	public static void main(String[] args) {
 
-		int score = 0;
+		short score = 0;
 
 		/*
-		 * Стандартната конзола на JAVA е недъгава, затова декларираме нова. За
-		 * целта използваме LANTERNA:
+		 * Setting the Lanterna Terminal (New Console)
 		 * https://code.google.com/archive/p/lanterna/wikis/UsingTerminal.wiki
-		 * импортираме lanterna-2.1.7.jar
+		 * importing library lanterna-2.1.7.jar
 		 */
 		Terminal terminal = TerminalFacade.createTerminal(System.in, System.out, Charset.forName("UTF8"));
 		terminal.enterPrivateMode();
 		TerminalSize terminalSize = terminal.getTerminalSize();
 		terminal.setCursorVisible(false);
-
-		// Старт на играта или изход
+		
+		System.out.println("Terminal size: \nColumns - "+terminalSize.getColumns()+", Rows - "+terminalSize.getRows());
+		
+		// Start the game or exit
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() / 2 - 2);
 		write("Press any key to START ", terminal);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() - 2);
@@ -42,10 +45,10 @@ public class Snake {
 		write("or Press Escape to EXIT", terminal);
 
 		while (true) {
-			Key p = terminal.readInput();
-			if (p != null) {
-				System.out.println(p);
-				if (p.getKind() == Key.Kind.Escape) {
+			Key pressedKey = terminal.readInput();
+			if (pressedKey != null) {
+				System.out.println(pressedKey);
+				if (pressedKey.getKind() == Key.Kind.Escape) {
 					terminal.exitPrivateMode();
 					System.exit(0);
 					break;
@@ -56,21 +59,21 @@ public class Snake {
 		}
 		terminal.clearScreen();
 
-		// Очертаваме граница на игралното поле
+		// Borderlines of the playing field
 		ArrayList<Position> borderLines = new ArrayList<Position>();
-		// горна стена
+		// top wall
 		for (int col = 0; col <= terminalSize.getColumns(); col++) {
 			borderLines.add(new Position(col, 0));
 		}
-		// долана стена
+		// bottom wall
 		for (int col = 0; col <= terminalSize.getColumns(); col++) {
 			borderLines.add(new Position(col, terminalSize.getRows() - 1));
 		}
-		// лява стена
+		// left wall
 		for (int row = 0; row <= terminalSize.getRows(); row++) {
 			borderLines.add(new Position(0, row));
 		}
-		// дясна стена
+		// right wall
 		for (int row = 0; row <= terminalSize.getRows(); row++) {
 			borderLines.add(new Position(terminalSize.getColumns() - 1, row));
 		}
@@ -86,7 +89,9 @@ public class Snake {
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("Score: " + score, terminal);
 
-		Position[] directions = new Position[] { new Position(1, 0), // right
+		// Array: coordinates of the four directions
+		Position[] directions = new Position[] { 
+				new Position(1, 0), // right
 				new Position(-1, 0), // left
 				new Position(0, 1), // up
 				new Position(0, -1), // down
@@ -99,6 +104,12 @@ public class Snake {
 		}
 		Position snakeHead = new Position(8, terminalSize.getRows() / 2);
 		printSnakeBody(terminal, snakeBody, snakeHead);
+		System.out.println("Snake length: "+snakeBody.size());
+		
+		// Print first snakeFood (random position)
+		Position snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
+		terminal.putCharacter('@');
+		System.out.println("Snake food coordinates: "+snakeFood.col+", "+snakeFood.row);
 	}
 
 	// Print to console (terminal)
@@ -109,10 +120,11 @@ public class Snake {
 		}
 	}
 
-	private static Position printSnakeBody(Terminal terminal, Queue<Position> snakeBody, Position snakeHeadNewPosition) {
+	private static Position printSnakeBody(Terminal terminal, Queue<Position> snakeBody,
+			Position snakeHeadNewPosition) {
 		Position snakeHead;
 		snakeBody.offer(snakeHeadNewPosition);
-		snakeHead=snakeHeadNewPosition;
+		snakeHead = snakeHeadNewPosition;
 		for (Position segmentOfSnake : snakeBody) {
 			terminal.applyForegroundColor(Terminal.Color.YELLOW);
 			terminal.applyBackgroundColor(Terminal.Color.BLACK);
@@ -120,10 +132,36 @@ public class Snake {
 			if (segmentOfSnake.equals(snakeHeadNewPosition) == false) {
 				terminal.putCharacter('₪');
 			} else {
-				terminal.putCharacter('o');
+				terminal.putCharacter('о');
 			}
 		}
 		return snakeHead;
 	}
 
+	private static Position printSnakeFood(Terminal terminal, TerminalSize terminalSize,
+			ArrayList<Position> borderLines, Queue<Position> snakeBody) {
+		Position foodPosition;
+		int foodColumn;
+		int foodRow;
+		boolean isInSnake;
+		do {
+			isInSnake = false;
+			// from 1 to terminalSize.getColumns() - 1
+			foodColumn = (int) (Math.random() * ((terminalSize.getColumns() - 2)))+1;
+			// from 1 to terminalSize.getRows() - 1
+			foodRow = (int) (Math.random() * ((terminalSize.getRows() - 2)))+1;
+			foodPosition = new Position(foodColumn, foodRow);
+
+			for (Position i : snakeBody) {
+				if (i.row == foodRow && i.col == foodColumn) {
+					isInSnake = true;
+				}
+			}
+
+
+		} while (isInSnake == true);
+		terminal.moveCursor(foodPosition.col, foodPosition.row);
+		terminal.applyForegroundColor(Terminal.Color.GREEN);
+		return foodPosition;
+	}
 }
