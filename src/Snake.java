@@ -28,7 +28,6 @@ public class Snake {
 		int speed = 200;
 		short score = 0;
 		
-
 		/*
 		 * Setting the Lanterna Terminal (New Console)
 		 * https://code.google.com/archive/p/lanterna/wikis/UsingTerminal.wiki
