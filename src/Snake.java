@@ -27,6 +27,7 @@ public class Snake {
 		int direction=0;
 		int speed = 200;
 		short score = 0;
+		short winningScore = 1;
 		
 		/*
 		 * Setting the Lanterna Terminal (New Console)
@@ -175,24 +176,7 @@ public class Snake {
 				Toolkit.getDefaultToolkit().beep();
 				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score);
 				gameOverMsg(terminal, terminalSize, score);
-				while (true) {
-					Key keyAfterGameOver = terminal.readInput();
-					// time delay - CPU friendly
-					delay(1);
-					if (keyAfterGameOver != null) {
-						// Restart
-						if (keyAfterGameOver.getKind() == Key.Kind.Enter) {
-							terminal.exitPrivateMode();
-							new Snake();
-							Snake.main(args);
-						}
-						// Exit
-						if (keyAfterGameOver.getKind() == Key.Kind.Escape) {
-							terminal.exitPrivateMode();
-							System.exit(0);
-						}
-					}
-				}
+
 			}
 			snakeHead = printSnakeBody(terminal, snakeBody, snakeHead);
 			Position removeLast = snakeBody.poll();
@@ -209,6 +193,12 @@ public class Snake {
 				printBorders(terminal, terminalSize, score);
 				infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
 				avelableKeys(terminal, terminalSize);
+			}
+			
+			// Winning score
+			if (score==winningScore) {
+				win(terminal, terminalSize);
+				break;
 			}
 		}
 	}
@@ -368,13 +358,8 @@ public class Snake {
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
 		terminal.applyBackgroundColor(Terminal.Color.BLACK);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 5, 3);
-		write("Your score: "+score, terminal, true);
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows()-5);
-		write("Press Escape for EXIT", terminal, true);
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows()-4);
-		write("or", terminal, true);
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows()-3);
-		write("Press Enter to play again", terminal, false);
+		write("Your score: " + score, terminal, true);
+		restartOrExitChoise(terminal, terminalSize);
 	}
 
 	public static void exitMsg(Terminal terminal, TerminalSize terminalSize, short score, Queue<Position> snakeBody,
@@ -471,4 +456,39 @@ public class Snake {
 		}
 		return snakeHead;
 	}
+	public static void win (Terminal terminal, TerminalSize terminalSize) {
+	terminal.clearScreen();
+	terminal.applyForegroundColor(Terminal.Color.YELLOW);
+	terminal.applyBackgroundColor(Terminal.Color.BLACK);
+	terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2-1);
+	write("You just won The Game!!!", terminal, true);
+	restartOrExitChoise(terminal, terminalSize);
+	}
+	public static void restartOrExitChoise (Terminal terminal, TerminalSize terminalSize) {
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows()-5);
+		write("Press Escape for EXIT", terminal, true);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows()-4);
+		write("or", terminal, true);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows()-3);
+		write("Press Enter to play again", terminal, false);
+		while (true) {
+			Key keyAfterGameOver = terminal.readInput();
+			// time delay - CPU friendly
+			delay(1);
+			if (keyAfterGameOver != null) {
+				// Restart
+				if (keyAfterGameOver.getKind() == Key.Kind.Enter) {
+					terminal.exitPrivateMode();
+					new Snake();
+					Snake.main(null);
+				}
+				// Exit
+				if (keyAfterGameOver.getKind() == Key.Kind.Escape) {
+					terminal.exitPrivateMode();
+					System.exit(0);
+				}
+			}
+		}
+	}
+	
 }
