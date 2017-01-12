@@ -137,7 +137,7 @@ public class Snake {
 						if (pauseKey != null) {
 							terminal.clearScreen();
 							printBorders(terminal, terminalSize, score);
-							printSnakeBody(terminal, snakeBody, snakeHead);
+							reDrawSnake(terminal, snakeBody, snakeHead);
 							terminal.moveCursor(snakeFood.col, snakeFood.row);
 							terminal.applyForegroundColor(Terminal.Color.GREEN);
 							terminal.putCharacter('@');
