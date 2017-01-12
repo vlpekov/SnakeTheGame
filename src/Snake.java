@@ -51,11 +51,7 @@ public class Snake {
 		while (true) {
 			Key pressedKey = terminal.readInput();
 			// time delay - CPU friendly
-			try {
-				Thread.sleep((int) 1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			delay(1);
 			if (pressedKey != null) {
 				System.out.println(pressedKey);
 				if (pressedKey.getKind() == Key.Kind.Escape) {
@@ -70,36 +66,6 @@ public class Snake {
 		}
 		terminal.clearScreen();
 
-//		// Borderlines of the playing field
-//		ArrayList<Position> borderLines = new ArrayList<Position>();
-//		// top wall
-//		for (int col = 0; col <= terminalSize.getColumns(); col++) {
-//			borderLines.add(new Position(col, 0));
-//		}
-//		// bottom wall
-//		for (int col = 0; col <= terminalSize.getColumns(); col++) {
-//			borderLines.add(new Position(col, terminalSize.getRows() - 1));
-//		}
-//		// left wall
-//		for (int row = 0; row <= terminalSize.getRows(); row++) {
-//			borderLines.add(new Position(0, row));
-//		}
-//		// right wall
-//		for (int row = 0; row <= terminalSize.getRows(); row++) {
-//			borderLines.add(new Position(terminalSize.getColumns() - 1, row));
-//		}
-//		for (Position i : borderLines) {
-//			terminal.applyForegroundColor(Terminal.Color.BLUE);
-//			terminal.applyBackgroundColor(Terminal.Color.BLUE);
-//			terminal.moveCursor(i.col, i.row);
-//			terminal.putCharacter('-');
-//		}
-//
-//		terminal.moveCursor(4, 0);
-//		terminal.applyForegroundColor(Terminal.Color.WHITE);
-//		terminal.applyBackgroundColor(Terminal.Color.BLUE);
-//		write("Score: " + score, terminal, false);
-//		printBorders(terminal, terminalSize, score);
 		ArrayList<Position> borderLines = printBorders(terminal, terminalSize, score);
 
 		// Array: coordinates of the four directions
@@ -176,12 +142,7 @@ public class Snake {
 							terminal.putCharacter('@');
 							break;
 						}
-						try {
-							Thread.sleep((int) 500);
-						} catch (InterruptedException e) {
-
-							e.printStackTrace();
-						}
+						delay(500);
 						flashingText = !flashingText;
 					}
 
@@ -209,6 +170,7 @@ public class Snake {
 					crashedIntoWall = true;
 				}
 			}
+			// Game over; Restart/Exit option;
 			if (crashedIntoWall || snakeSuicide) {
 				Toolkit.getDefaultToolkit().beep();
 				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score);
@@ -216,11 +178,7 @@ public class Snake {
 				while (true) {
 					Key keyAfterGameOver = terminal.readInput();
 					// time delay - CPU friendly
-					try {
-						Thread.sleep((int) 1);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					delay(1);
 					if (keyAfterGameOver != null) {
 						// Restart
 						if (keyAfterGameOver.getKind() == Key.Kind.Enter) {
@@ -241,6 +199,16 @@ public class Snake {
 			terminal.moveCursor(removeLast.col, removeLast.row);
 			terminal.putCharacter(' ');
 			delay(speed);
+			
+			// Eating
+			if (snakeHead.col == snakeFood.col && snakeHead.row == snakeFood.row) {
+				snakeBody.offer(new Position(snakeFood.col, snakeFood.row));
+				score++;
+				printSnakeBody(terminal, snakeBody, snakeHead);
+				snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
+				printBorders(terminal, terminalSize, score);
+				infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
+			}
 		}
 	}
 
@@ -361,12 +329,7 @@ public class Snake {
 				terminal.clearScreen();
 				printBorders(terminal, terminalSize, score);
 			}
-		try {
-			Thread.sleep((int) 350);
-		} catch (InterruptedException e) {
-
-			e.printStackTrace();
-		}
+		delay(350);
 		}
 	}
 	public static void gameOverMsg (Terminal terminal, TerminalSize terminalSize, short score) {
