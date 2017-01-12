@@ -7,6 +7,7 @@ import java.util.Queue;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.input.Key;
+import com.googlecode.lanterna.input.Key.Kind;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
@@ -55,8 +56,7 @@ public class Snake {
 			if (pressedKey != null) {
 				System.out.println(pressedKey);
 				if (pressedKey.getKind() == Key.Kind.Escape) {
-					terminal.exitPrivateMode();
-					System.exit(0);
+					turnOff(terminal);
 					break;
 				} else {
 					break;
@@ -91,7 +91,7 @@ public class Snake {
 		// Print first snakeFood (random position)
 		Position snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
 //		terminal.putCharacter('@');
-		
+		avelableKeys(terminal, terminalSize);
 		// Game engine info
 		infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
 		while (true) {
@@ -116,9 +116,11 @@ public class Snake {
 				}
 				// Pause
 				if (pressedKey.getKind() == Key.Kind.Enter) {
+					printBorders(terminal, terminalSize, score);
 					Toolkit.getDefaultToolkit().beep();
 					terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 - 2);
 					terminal.applyForegroundColor(Terminal.Color.WHITE);
+					terminal.applyBackgroundColor(Terminal.Color.BLACK);
 					write("P A U S E", terminal, false);
 					boolean flashingText = true;
 					while (true) {
@@ -145,12 +147,12 @@ public class Snake {
 						delay(500);
 						flashingText = !flashingText;
 					}
-
+					avelableKeys(terminal, terminalSize);
 				}
-
+				// Exit during playing the game
 				if (pressedKey.getKind() == Key.Kind.Escape) {
-					terminal.exitPrivateMode();
-					System.exit(0);
+					exitMsg(terminal, terminalSize, score, snakeBody, snakeFood, snakeHead);
+//					turnOff(terminal);
 				}
 			}
 			// The snake moves
@@ -208,6 +210,7 @@ public class Snake {
 				snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
 				printBorders(terminal, terminalSize, score);
 				infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
+				avelableKeys(terminal, terminalSize);
 			}
 		}
 	}
@@ -228,6 +231,7 @@ public class Snake {
 			Position snakeHeadNewPosition) {
 		Position snakeHead;
 		snakeBody.offer(snakeHeadNewPosition);
+		
 		snakeHead = snakeHeadNewPosition;
 		for (Position segmentOfSnake : snakeBody) {
 			terminal.applyForegroundColor(Terminal.Color.YELLOW);
@@ -268,17 +272,16 @@ public class Snake {
 		return foodPosition;
 	}
 	public static void infoGameEngine (Terminal terminal, TerminalSize terminalSize,
-			Position foodPosition, Queue<Position> snakeBody, Position snakeHead) {
+			Position snakeFood, Queue<Position> snakeBody, Position snakeHead) {
 		System.out.println("Terminal size: \nColumns - "+terminalSize.getColumns()+", Rows - "+terminalSize.getRows());
 		System.out.println("Snake length: "+snakeBody.size());
 		System.out.println("Snake head coordinates: "+snakeHead.col+", "+snakeHead.row);
-		System.out.println("Snake food coordinates: "+foodPosition.col+", "+foodPosition.row);
+		System.out.println("Snake food coordinates: "+snakeFood.col+", "+snakeFood.row);
 
 	}
 	
 	public static ArrayList<Position> printBorders (Terminal terminal, TerminalSize terminalSize, short score) {
 		// Borderlines of the playing field
-
 		ArrayList<Position> borderLines = new ArrayList<Position>();
 		// top wall
 		for (int col = 0; col <= terminalSize.getColumns(); col++) {
@@ -374,5 +377,85 @@ public class Snake {
 		write("or", terminal, true);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows()-3);
 		write("Press Enter to play again", terminal, false);
+	}
+
+	public static void exitMsg(Terminal terminal, TerminalSize terminalSize, short score, Queue<Position> snakeBody,
+			Position snakeFood, Position snakeHead) {
+		terminal.clearScreen();
+
+		terminal.applyForegroundColor(Terminal.Color.WHITE);
+		terminal.applyBackgroundColor(Terminal.Color.RED);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 8, terminalSize.getRows() / 2-1);
+		write("Press \"y\" to confirm. ", terminal, false);
+		while (true) {
+			Key pressedKey = terminal.readInput();
+			// time delay - CPU friendly
+			delay(1);
+			if (pressedKey != null) {
+				System.out.println(pressedKey);
+				if (pressedKey.getCharacter() == 'y') {
+					terminal.clearScreen();
+					terminal.moveCursor(terminalSize.getColumns() / 2 - 8, terminalSize.getRows() / 2-1);
+					write("   - exiting -   ", terminal, false);
+					long timeStart = System.currentTimeMillis();
+					delay(1200);
+					int delayMinus = 15;
+					for (int i = 1; i <= 30; i++) {
+						terminal.clearScreen();
+						int randomColumn = (int) (Math.random() * ((terminalSize.getColumns() - 66))) + 24;
+						int randomRow = (int) (Math.random() * ((terminalSize.getRows() - 24))) + 12;
+						terminal.moveCursor(randomColumn, randomRow);
+						if (i%2!=0) {
+							terminal.applyBackgroundColor(Terminal.Color.YELLOW);
+							terminal.applyForegroundColor(Terminal.Color.RED);
+						} else if (i%2==0) {
+							terminal.applyBackgroundColor(Terminal.Color.RED);
+							terminal.applyForegroundColor(Terminal.Color.WHITE);
+						}
+						write("   - exiting -   ", terminal, false);
+//						terminal.moveCursor(randomColumn, randomRow - 1);
+//						write("=================", terminal, false);
+//						terminal.moveCursor(randomColumn, randomRow + 1);
+//						write("=================", terminal, false);
+						delay(600 - (delayMinus));
+						if (570 - delayMinus > 5) {
+							delayMinus += 30;
+						}
+						
+						}
+					terminal.clearScreen();
+					terminal.moveCursor(terminalSize.getColumns() / 2 - 8, terminalSize.getRows() / 2-1);
+					terminal.applyForegroundColor(Terminal.Color.YELLOW);
+					terminal.applyBackgroundColor(Terminal.Color.BLACK);
+					long timeEnd = System.currentTimeMillis();
+					long totalTime=timeEnd-timeStart;
+					System.out.println(totalTime);
+					write("   Bye-bye :)   ", terminal, false);
+					delay(3000);
+					turnOff(terminal);
+				} else {
+					terminal.clearScreen();
+					printBorders(terminal, terminalSize, score);
+					printSnakeBody(terminal, snakeBody, snakeHead);
+					terminal.moveCursor(snakeFood.col, snakeFood.row);
+					terminal.applyForegroundColor(Terminal.Color.GREEN);
+					terminal.putCharacter('@');
+					infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
+					break;
+				}
+				
+			}
+		}
+		
+	}
+	public static void turnOff (Terminal terminal) {
+		terminal.exitPrivateMode();
+		System.exit(0);
+	}
+	public static void avelableKeys (Terminal terminal, TerminalSize terminalSize) {
+		terminal.moveCursor(terminalSize.getColumns()-55, terminalSize.getRows()-1);
+		terminal.applyForegroundColor(Terminal.Color.BLACK);
+		terminal.applyBackgroundColor(Terminal.Color.BLUE);
+		write("\"Escape\" for Exit.  \"Enter\" to Pause the game.", terminal, true);	
 	}
 }
