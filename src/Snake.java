@@ -27,7 +27,7 @@ public class Snake {
 		int direction=0;
 		int speed = 200;
 		short score = 0;
-		short winningScore = 1;
+		short winningScore = 10;
 		
 		/*
 		 * Setting the Lanterna Terminal (New Console)
@@ -64,7 +64,6 @@ public class Snake {
 			}
 		}
 		terminal.clearScreen();
-
 		ArrayList<Position> borderLines = printBorders(terminal, terminalSize, score);
 
 		// Array: coordinates of the four directions
@@ -323,6 +322,7 @@ public class Snake {
 		delay(350);
 		}
 	}
+	
 	public static void gameOverMsg (Terminal terminal, TerminalSize terminalSize, short score) {
 		String[][] sad = { { "	                                               " },
 				{ "	   /██████   /██████  /██      /██ /████████   " },
@@ -335,14 +335,14 @@ public class Snake {
 				{ "	  \\______/ |__/  |__/|__/     |__/|________/   " },
 
 				{ "	                                               " },
-				{ "	   /██████  /██    /██ /████████ /███████      " },
-				{ "	  /██__  ██| ██   | ██| ██_____/| ██__  ██     " },
-				{ "	 | ██  \\ ██| ██   | ██| ██      | ██  \\ ██     " },
-				{ "	 | ██  | ██|  ██ / ██/| █████   | ███████/     " },
-				{ "	 | ██  | ██ \\  ██ ██/ | ██__/   | ██__  ██     " },
-				{ "	 | ██  | ██  \\  ███/  | ██      | ██  \\ ██     " },
-				{ "	 |  ██████/   \\  █/   | ████████| ██  | ██     " },
-				{ "	  \\______/     \\_/    |________/|__/  |__/     " },
+				{ "	    /██████  /██    /██ /████████ /███████     " },
+				{ "	   /██__  ██| ██   | ██| ██_____/| ██__  ██    " },
+				{ "	  | ██  \\ ██| ██   | ██| ██      | ██  \\ ██    " },
+				{ "	  | ██  | ██|  ██ / ██/| █████   | ███████/    " },
+				{ "	  | ██  | ██ \\  ██ ██/ | ██__/   | ██__  ██    " },
+				{ "	  | ██  | ██  \\  ███/  | ██      | ██  \\ ██    " },
+				{ "	  |  ██████/   \\  █/   | ████████| ██  | ██    " },
+				{ "	   \\______/     \\_/    |________/|__/  |__/    " },
 				{ "	                                               " },
 
 		};     
@@ -365,7 +365,6 @@ public class Snake {
 	public static void exitMsg(Terminal terminal, TerminalSize terminalSize, short score, Queue<Position> snakeBody,
 			Position snakeFood, Position snakeHead) {
 		terminal.clearScreen();
-
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
 		terminal.applyBackgroundColor(Terminal.Color.RED);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 8, terminalSize.getRows() / 2-1);
@@ -375,13 +374,19 @@ public class Snake {
 			// time delay - CPU friendly
 			delay(1);
 			if (pressedKey != null) {
+				// Hidden quick exit
+				if (pressedKey.getKind() == Key.Kind.Escape) {
+					terminal.exitPrivateMode();
+					System.exit(0);
+				}
+
 				System.out.println(pressedKey);
 				if (pressedKey.getCharacter() == 'y') {
 					terminal.clearScreen();
 					terminal.moveCursor(terminalSize.getColumns() / 2 - 8, terminalSize.getRows() / 2-1);
 					write("   - exiting -   ", terminal, false);
 					long timeStart = System.currentTimeMillis();
-					delay(1200);
+					delay(1000);
 					int delayMinus = 15;
 					for (int i = 1; i <= 30; i++) {
 						terminal.clearScreen();
@@ -435,15 +440,17 @@ public class Snake {
 		terminal.exitPrivateMode();
 		System.exit(0);
 	}
+	
 	public static void avelableKeys (Terminal terminal, TerminalSize terminalSize) {
 		terminal.moveCursor(terminalSize.getColumns()-55, terminalSize.getRows()-1);
 		terminal.applyForegroundColor(Terminal.Color.BLACK);
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("\"Escape\" for Exit.  \"Enter\" to Pause the game.", terminal, true);	
+	
 	}
+	
 	public static Position reDrawSnake(Terminal terminal, Queue<Position> snakeBody,
 			Position snakeHead) {
-		
 		for (Position segmentOfSnake : snakeBody) {
 			terminal.applyForegroundColor(Terminal.Color.YELLOW);
 			terminal.applyBackgroundColor(Terminal.Color.BLACK);
@@ -456,6 +463,7 @@ public class Snake {
 		}
 		return snakeHead;
 	}
+	
 	public static void win (Terminal terminal, TerminalSize terminalSize) {
 	terminal.clearScreen();
 	terminal.applyForegroundColor(Terminal.Color.YELLOW);
@@ -464,6 +472,7 @@ public class Snake {
 	write("You just won The Game!!!", terminal, true);
 	restartOrExitChoise(terminal, terminalSize);
 	}
+	
 	public static void restartOrExitChoise (Terminal terminal, TerminalSize terminalSize) {
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows()-5);
 		write("Press Escape for EXIT", terminal, true);
@@ -490,5 +499,11 @@ public class Snake {
 			}
 		}
 	}
-	
+	public static void escapeKeyExit (Terminal terminal) {
+		Key pressed = terminal.readInput();
+		if (pressed.getKind() == Key.Kind.Escape) {
+			terminal.exitPrivateMode();
+			System.exit(0);
+		}
+	}
 }
