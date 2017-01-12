@@ -7,7 +7,6 @@ import java.util.Queue;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.input.Key;
-import com.googlecode.lanterna.input.Key.Kind;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
@@ -85,7 +84,7 @@ public class Snake {
 		for (int segment = 2; segment <= 7; segment++) {
 			snakeBody.offer(new Position(segment, terminalSize.getRows() / 2));
 		}
-		Position snakeHead = new Position(8, terminalSize.getRows() / 2);
+		Position snakeHead = new Position(7, terminalSize.getRows() / 2);
 		printSnakeBody(terminal, snakeBody, snakeHead);
 		
 		// Print first snakeFood (random position)
@@ -204,7 +203,7 @@ public class Snake {
 			
 			// Eating
 			if (snakeHead.col == snakeFood.col && snakeHead.row == snakeFood.row) {
-				snakeBody.offer(new Position(snakeFood.col, snakeFood.row));
+//				snakeBody.offer(new Position(snakeFood.col, snakeFood.row));
 				score++;
 				printSnakeBody(terminal, snakeBody, snakeHead);
 				snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
@@ -436,7 +435,7 @@ public class Snake {
 				} else {
 					terminal.clearScreen();
 					printBorders(terminal, terminalSize, score);
-					printSnakeBody(terminal, snakeBody, snakeHead);
+					reDrawSnake(terminal, snakeBody, snakeHead);
 					terminal.moveCursor(snakeFood.col, snakeFood.row);
 					terminal.applyForegroundColor(Terminal.Color.GREEN);
 					terminal.putCharacter('@');
@@ -457,5 +456,20 @@ public class Snake {
 		terminal.applyForegroundColor(Terminal.Color.BLACK);
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("\"Escape\" for Exit.  \"Enter\" to Pause the game.", terminal, true);	
+	}
+	public static Position reDrawSnake(Terminal terminal, Queue<Position> snakeBody,
+			Position snakeHead) {
+		
+		for (Position segmentOfSnake : snakeBody) {
+			terminal.applyForegroundColor(Terminal.Color.YELLOW);
+			terminal.applyBackgroundColor(Terminal.Color.BLACK);
+			terminal.moveCursor(segmentOfSnake.col, segmentOfSnake.row);
+			if (segmentOfSnake.equals(snakeHead) == false) {
+				terminal.putCharacter('₪');
+			} else {
+				terminal.putCharacter('о');
+			}
+		}
+		return snakeHead;
 	}
 }
