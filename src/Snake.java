@@ -50,6 +50,12 @@ public class Snake {
 
 		while (true) {
 			Key pressedKey = terminal.readInput();
+			// time delay - CPU friendly
+			try {
+				Thread.sleep((int) 1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			if (pressedKey != null) {
 				System.out.println(pressedKey);
 				if (pressedKey.getKind() == Key.Kind.Escape) {
@@ -59,6 +65,7 @@ public class Snake {
 				} else {
 					break;
 				}
+				
 			}
 		}
 		terminal.clearScreen();
@@ -203,11 +210,17 @@ public class Snake {
 				}
 			}
 			if (crashedIntoWall || snakeSuicide) {
-				
+				Toolkit.getDefaultToolkit().beep();
 				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score);
 				gameOverMsg(terminal, terminalSize, score);
 				while (true) {
 					Key keyAfterGameOver = terminal.readInput();
+					// time delay - CPU friendly
+					try {
+						Thread.sleep((int) 1);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					if (keyAfterGameOver != null) {
 						// Restart
 						if (keyAfterGameOver.getKind() == Key.Kind.Enter) {
@@ -385,7 +398,7 @@ public class Snake {
 		for (int i = 0; i < sad.length; i++) {
 			// String rowString = Arrays.toString(sad[i]);
 			terminal.moveCursor(terminalSize.getColumns() / 2 - 25, 4 + i);
-			write(Arrays.toString(sad[i]), terminal, true);
+			write(Arrays.toString(sad[i]), terminal, false);
 			// System.out.println(Arrays.toString(sad[i]));}
 		}
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
@@ -397,6 +410,6 @@ public class Snake {
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows()-4);
 		write("or", terminal, true);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows()-3);
-		write("Press Enter to play again", terminal, true);
+		write("Press Enter to play again", terminal, false);
 	}
 }
