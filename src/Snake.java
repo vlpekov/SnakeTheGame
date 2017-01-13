@@ -92,40 +92,72 @@ public class Snake {
 		avelableKeys(terminal, terminalSize);
 		// Game engine info
 		infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead, speed);
+
 		while (true) {
 			acceleration=speed;
+//			direction = directionArrow(terminal, direction);
+			
+//			Key pressed = terminal.readInput();
+//			if (pressed == null & pressedKeyDetected) {
+//			loopCountWaitingForKey = loopsCount;	
+//			pressedKeyDetected=false;
+//			System.out.println(pressedKeyDetected);
+//			}
+//			
+////			long timeFirstPress = 0;
+////			long timeSecondPress = 0;
+//			if (pressed != null) {
+//			pressedKeyDetected = true;
+//			loopsInterval=loopsCount-loopCountWaitingForKey;
+//			System.out.println((loopsCount-loopCountWaitingForKey)+" LOOPS");
+//			loopsCount=1;
+//			}
+//			loopsCount++;
+//			if (loopsInterval<3) {
+//				successiveKeys++;
+//			}
+//			if (loopsInterval>3 || successiveKeys>30) {
+//				successiveKeys=1;
+//			}
+//			} if (pressed != null) {
+//			timeSecondPress = System.currentTimeMillis();	
+//			}
+//			long timeInterval=timeSecondPress-timeFirstPress;
+//			System.out.println("timeSecondPress-timeFirstPress="+timeInterval);
+//			boolean timeInterval = true;
+			
 			Key pressedKey = terminal.readInput();
+
 			if (pressedKey != null) {
-				
 				// System.out.println(pressedKey);
-				if (pressedKey.getKind() == Key.Kind.ArrowUp  & direction != up) {
+				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
 					if (direction != down)
 						direction = up;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowDown  & direction != down) {
+				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
 					if (direction != up)
 						direction = down;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowLeft  & direction != left) {
+				if (pressedKey.getKind() == Key.Kind.ArrowLeft) {
 					if (direction != right)
 						direction = left;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowRight  & direction != right) {
+				if (pressedKey.getKind() == Key.Kind.ArrowRight) {
 					if (direction != left)
 						direction = right;
 				}
-				// acceleration 
-				if (pressedKey.getKind() == Key.Kind.ArrowUp  & direction == up) {
-					acceleration=120;
+				// acceleration
+				if (pressedKey.getKind() == Key.Kind.ArrowUp & direction == up) {
+					acceleration = 100;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowDown  & direction == down) {
-					acceleration=120;
+				if (pressedKey.getKind() == Key.Kind.ArrowDown & direction == down) {
+					acceleration = 100;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowLeft  & direction == left) {
-					acceleration=60;
+				if (pressedKey.getKind() == Key.Kind.ArrowLeft & direction == left) {
+					acceleration = 60;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowRight  & direction == right) {
-					acceleration=60;
+				if (pressedKey.getKind() == Key.Kind.ArrowRight & direction == right) {
+					acceleration = 60;
 				}
 				// Pause
 				if (pressedKey.getKind() == Key.Kind.Enter) {
@@ -165,9 +197,29 @@ public class Snake {
 				// Exit during playing the game
 				if (pressedKey.getKind() == Key.Kind.Escape) {
 					exitMsg(terminal, terminalSize, score, snakeBody, snakeFood, snakeHead);
-//					turnOff(terminal);
 				}
 			}
+			Key pressedKeySecond = terminal.readInput();
+			if (pressedKeySecond != null) {
+				// System.out.println(pressedKey);
+				if (pressedKeySecond.getKind() == Key.Kind.ArrowUp) {
+					if (direction != down)
+						direction = up;
+				}
+				if (pressedKeySecond.getKind() == Key.Kind.ArrowDown) {
+					if (direction != up)
+						direction = down;
+				}
+				if (pressedKeySecond.getKind() == Key.Kind.ArrowLeft) {
+					if (direction != right)
+						direction = left;
+				}
+				if (pressedKeySecond.getKind() == Key.Kind.ArrowRight) {
+					if (direction != left)
+						direction = right;
+				}
+			}
+		
 			// The snake moves
 			Position newDirection = directions[direction];
 			snakeHead = new Position(snakeHead.col + newDirection.col, snakeHead.row + newDirection.row);
@@ -220,6 +272,7 @@ public class Snake {
 				win(terminal, terminalSize);
 				break;
 			}
+
 		}
 	}
 
@@ -466,7 +519,7 @@ public class Snake {
 		terminal.moveCursor(terminalSize.getColumns()-55, terminalSize.getRows()-1);
 		terminal.applyForegroundColor(Terminal.Color.BLACK);
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
-		write("\"Escape\" for Exit.  \"Enter\" to Pause the game.", terminal, true);	
+		write("\"Escape\" for Exit.  \"Enter\" to Pause the game.", terminal, false);	
 	
 	}
 	
@@ -575,6 +628,10 @@ public class Snake {
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("Level: " + level, terminal, false);
 	}
-	
+
+	public static Key pressedKeys (Terminal terminal) {
+		Key pressed = terminal.readInput();
+		return pressed;
+	}
 }
 	
