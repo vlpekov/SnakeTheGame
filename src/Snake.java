@@ -25,9 +25,9 @@ public class Snake {
 	public static void main(String[] args) {
 		
 		int direction=0;
-		int speed = 200;
+		short speed = 200;
 		short score = 0;
-		short winningScore = 10;
+		short winningScore = 60;
 		
 		/*
 		 * Setting the Lanterna Terminal (New Console)
@@ -91,7 +91,7 @@ public class Snake {
 //		terminal.putCharacter('@');
 		avelableKeys(terminal, terminalSize);
 		// Game engine info
-		infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
+		infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead, speed);
 		while (true) {
 			Key pressedKey = terminal.readInput();
 			if (pressedKey != null) {
@@ -181,7 +181,6 @@ public class Snake {
 			Position removeLast = snakeBody.poll();
 			terminal.moveCursor(removeLast.col, removeLast.row);
 			terminal.putCharacter(' ');
-			delay(speed);
 			
 			// Eating
 			if (snakeHead.col == snakeFood.col && snakeHead.row == snakeFood.row) {
@@ -190,10 +189,12 @@ public class Snake {
 				printSnakeBody(terminal, snakeBody, snakeHead);
 				snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
 				printBorders(terminal, terminalSize, score);
-				infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
+				infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead, speed);
 				avelableKeys(terminal, terminalSize);
 			}
-			
+			System.out.println(speedUp(speed, score));
+			delay(speedUp(speed, score));
+			speed=speedUp(speed, score);
 			// Winning score
 			if (score==winningScore) {
 				win(terminal, terminalSize);
@@ -259,11 +260,12 @@ public class Snake {
 		return foodPosition;
 	}
 	public static void infoGameEngine (Terminal terminal, TerminalSize terminalSize,
-			Position snakeFood, Queue<Position> snakeBody, Position snakeHead) {
+			Position snakeFood, Queue<Position> snakeBody, Position snakeHead, short speed) {
 		System.out.println("Terminal size: \nColumns - "+terminalSize.getColumns()+", Rows - "+terminalSize.getRows());
 		System.out.println("Snake length: "+snakeBody.size());
 		System.out.println("Snake head coordinates: "+snakeHead.col+", "+snakeHead.row);
 		System.out.println("Snake food coordinates: "+snakeFood.col+", "+snakeFood.row);
+		System.out.println("Current speed: " + speed);
 
 	}
 	
@@ -428,7 +430,6 @@ public class Snake {
 					terminal.moveCursor(snakeFood.col, snakeFood.row);
 					terminal.applyForegroundColor(Terminal.Color.GREEN);
 					terminal.putCharacter('@');
-					infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead);
 					break;
 				}
 				
@@ -505,5 +506,30 @@ public class Snake {
 			terminal.exitPrivateMode();
 			System.exit(0);
 		}
+	}
+	
+	private static short speedUp (short speed, short score) {
+		short speedUp=speed;
+		switch (score) {
+		case 5:
+			speedUp = 180;
+			break;
+		case 10:
+			speedUp = 160;
+			break;
+		case 15: speedUp = 140;
+		break;
+		case 20: speedUp = 120;
+		break;
+		case 30: speedUp = 100;
+		break;
+		case 45: speedUp = 80;
+		break;
+		case 55: speedUp = 60;
+		break;
+		default:
+		}
+		return speedUp;
+		
 	}
 }
