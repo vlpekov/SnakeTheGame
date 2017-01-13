@@ -28,7 +28,6 @@ public class Snake {
 		short speed = 200;
 		short score = 0;
 		short winningScore = 60;
-		
 		/*
 		 * Setting the Lanterna Terminal (New Console)
 		 * https://code.google.com/archive/p/lanterna/wikis/UsingTerminal.wiki
@@ -192,9 +191,8 @@ public class Snake {
 				infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead, speed);
 				avelableKeys(terminal, terminalSize);
 			}
-			System.out.println(speedUp(speed, score));
-			delay(speedUp(speed, score));
 			speed=speedUp(speed, score);
+			delay(speedUp(speed, score));
 			// Winning score
 			if (score==winningScore) {
 				win(terminal, terminalSize);
@@ -299,7 +297,7 @@ public class Snake {
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("Score: " + score, terminal, false);
-		
+		levelPrint(score, terminal);
 		return borderLines;
 	}
 	private static void delay(int speed) {
@@ -532,4 +530,29 @@ public class Snake {
 		return speedUp;
 		
 	}
+	public static void levelPrint (short score, Terminal terminal) {
+		byte level=1;
+		if (score>4 & score < 10) {
+			level=2;
+		} else if (score > 9 & score < 15) {
+			level=3;
+		} else if (score > 14 & score < 20) {
+			level=4;
+		} else if (score > 19 & score < 30) {
+			level=5;
+		} else if (score > 29 & score < 45) {
+			level=6;
+		} else if (score > 44 & score < 55) {
+			level=7;
+		} else if (score > 54) {
+			level=8;
+		} 
+		
+		terminal.moveCursor(86, 0);
+		terminal.applyForegroundColor(Terminal.Color.WHITE);
+		terminal.applyBackgroundColor(Terminal.Color.BLUE);
+		write("Level: " + level, terminal, false);
+	}
+	
 }
+	
