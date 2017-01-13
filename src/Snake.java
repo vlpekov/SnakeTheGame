@@ -28,6 +28,7 @@ public class Snake {
 		short speed = 200;
 		short score = 0;
 		short winningScore = 60;
+		short acceleration = speed;
 		/*
 		 * Setting the Lanterna Terminal (New Console)
 		 * https://code.google.com/archive/p/lanterna/wikis/UsingTerminal.wiki
@@ -92,24 +93,39 @@ public class Snake {
 		// Game engine info
 		infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead, speed);
 		while (true) {
+			acceleration=speed;
 			Key pressedKey = terminal.readInput();
 			if (pressedKey != null) {
+				
 				// System.out.println(pressedKey);
-				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
+				if (pressedKey.getKind() == Key.Kind.ArrowUp  & direction != up) {
 					if (direction != down)
 						direction = up;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
+				if (pressedKey.getKind() == Key.Kind.ArrowDown  & direction != down) {
 					if (direction != up)
 						direction = down;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowLeft) {
+				if (pressedKey.getKind() == Key.Kind.ArrowLeft  & direction != left) {
 					if (direction != right)
 						direction = left;
 				}
-				if (pressedKey.getKind() == Key.Kind.ArrowRight) {
+				if (pressedKey.getKind() == Key.Kind.ArrowRight  & direction != right) {
 					if (direction != left)
 						direction = right;
+				}
+				// acceleration 
+				if (pressedKey.getKind() == Key.Kind.ArrowUp  & direction == up) {
+					acceleration=120;
+				}
+				if (pressedKey.getKind() == Key.Kind.ArrowDown  & direction == down) {
+					acceleration=120;
+				}
+				if (pressedKey.getKind() == Key.Kind.ArrowLeft  & direction == left) {
+					acceleration=60;
+				}
+				if (pressedKey.getKind() == Key.Kind.ArrowRight  & direction == right) {
+					acceleration=60;
 				}
 				// Pause
 				if (pressedKey.getKind() == Key.Kind.Enter) {
@@ -192,9 +208,15 @@ public class Snake {
 				avelableKeys(terminal, terminalSize);
 			}
 			speed=speedUp(speed, score);
-			delay(speedUp(speed, score));
+			if (speed==acceleration){
+				delay(speed);	
+			} else if (speed!=acceleration){
+				delay(acceleration);
+			}
+			
 			// Winning score
 			if (score==winningScore) {
+				delay(1500);
 				win(terminal, terminalSize);
 				break;
 			}
