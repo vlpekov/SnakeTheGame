@@ -29,6 +29,7 @@ public class Snake {
 		short score = 0;
 		short winningScore = 60;
 		short acceleration = speed;
+		boolean difficultyHard;
 
 		/*
 		 * Setting the Lanterna Terminal (New Console)
@@ -40,7 +41,36 @@ public class Snake {
 		TerminalSize terminalSize = terminal.getTerminalSize();
 		terminal.setCursorVisible(false);
 		
-		System.out.println("Terminal size: \nColumns - "+terminalSize.getColumns()+", Rows - "+terminalSize.getRows());
+		// Choose difficulty
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 24, terminalSize.getRows() / 2 - 2);
+		write("Choose difficulty:", terminal, true);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows()  / 2-2);
+		terminal.applyForegroundColor(Terminal.Color.GREEN);
+		write("e - easy", terminal, true);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 -1);
+		terminal.applyForegroundColor(Terminal.Color.RED);
+		write("h - hard", terminal, true);
+		while (true) {
+			Key pressedKey = terminal.readInput();
+			// time delay - CPU friendly
+			delay(1);
+			if (pressedKey != null) {
+				System.out.println(pressedKey);
+				if (pressedKey.getCharacter() == 'h') {
+					difficultyHard = true;
+					break;
+				}
+				if (pressedKey.getCharacter() == 'e') {
+					difficultyHard = false;
+					break;
+				}
+				if (pressedKey.getKind() == Key.Kind.Escape) {
+					turnOff(terminal);
+					break;
+				}
+			}
+		}
+		terminal.clearScreen();	
 		
 		// Start the game or exit
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() / 2 - 2);
