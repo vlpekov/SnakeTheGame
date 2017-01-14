@@ -24,11 +24,12 @@ public class Snake {
 
 	public static void main(String[] args) {
 		
-		int direction=0;
+		byte direction = 0;
 		short speed = 200;
 		short score = 0;
 		short winningScore = 60;
 		short acceleration = speed;
+
 		/*
 		 * Setting the Lanterna Terminal (New Console)
 		 * https://code.google.com/archive/p/lanterna/wikis/UsingTerminal.wiki
@@ -98,109 +99,67 @@ public class Snake {
 		byte arrowRightCount = 0;
 		while (true) {
 			acceleration=speed;
-//			direction = directionArrow(terminal, direction);
-			
-//			Key pressed = terminal.readInput();
-//			if (pressed == null & pressedKeyDetected) {
-//			loopCountWaitingForKey = loopsCount;	
-//			pressedKeyDetected=false;
-//			System.out.println(pressedKeyDetected);
-//			}
-//			
-////			long timeFirstPress = 0;
-////			long timeSecondPress = 0;
-//			if (pressed != null) {
-//			pressedKeyDetected = true;
-//			loopsInterval=loopsCount-loopCountWaitingForKey;
-//			System.out.println((loopsCount-loopCountWaitingForKey)+" LOOPS");
-//			loopsCount=1;
-//			}
-//			loopsCount++;
-//			if (loopsInterval<3) {
-//				successiveKeys++;
-//			}
-//			if (loopsInterval>3 || successiveKeys>30) {
-//				successiveKeys=1;
-//			}
-//			} if (pressed != null) {
-//			timeSecondPress = System.currentTimeMillis();	
-//			}
-//			long timeInterval=timeSecondPress-timeFirstPress;
-//			System.out.println("timeSecondPress-timeFirstPress="+timeInterval);
-//			boolean timeInterval = true;
-			boolean upPressed = false;
-			boolean downPressed = false;
-			boolean leftPressed = false;
-			boolean rightPressed = false;
 			Key pressedKey = terminal.readInput();
 			if (pressedKey != null) {
-				// System.out.println(pressedKey);
 				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
-					if (direction != down)
+					if (direction != down) {
 						direction = up;
-						upPressed = true;   
-						downPressed = false; 
-						leftPressed = false; 
-						rightPressed = false;
 						arrowUpCount++;
 						arrowDownCount = 0;
 						arrowLeftCount = 0;
 						arrowRightCount = 0;
+						System.out.println("KeyDetect1");
+					}
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
-					if (direction != up)
+					if (direction != up) {
 						direction = down;
-						upPressed = false;   
-						downPressed = true;  
-						leftPressed = false; 
-						rightPressed = false;
 						arrowUpCount = 0;
 						arrowDownCount++;
 						arrowLeftCount = 0;
 						arrowRightCount = 0;
+						System.out.println("KeyDetect2");
+					}
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowLeft) {
-					if (direction != right)
+					if (direction != right) {
 						direction = left;
-						upPressed = false;   
-						downPressed = false; 
-						leftPressed = true;  
-						rightPressed = false;
 						arrowUpCount = 0;
 						arrowDownCount = 0;
 						arrowLeftCount++;
 						arrowRightCount = 0;
+						System.out.println("KeyDetect3");
+					}
 				}
+
 				if (pressedKey.getKind() == Key.Kind.ArrowRight) {
-					if (direction != left)
+					if (direction != left) {
 						direction = right;
-						upPressed = false;   
-						downPressed = false; 
-						leftPressed = false; 
-						rightPressed = true;  
 						arrowUpCount = 0;
 						arrowDownCount = 0;
 						arrowLeftCount = 0;
 						arrowRightCount++;
+						System.out.println("KeyDetect4");
+					}
 				}
 				// acceleration
 				if (pressedKey.getKind() == Key.Kind.ArrowUp & direction == up & arrowUpCount > 2) {
 					acceleration = 100;
-					if (arrowUpCount > 5) {
-						arrowUpCount = 0;
-					}
+					System.out.println("KeyDetect5");
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowDown & direction == down & arrowDownCount > 2) {
 					acceleration = 100;
-					if (arrowDownCount > 5) {
-						arrowDownCount = 0;
-					}
+					System.out.println("KeyDetect6");
+
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowLeft & direction == left & arrowLeftCount > 2) {
 					acceleration = 60;
+					System.out.println("KeyDetect7");
 				}
+
 				if (pressedKey.getKind() == Key.Kind.ArrowRight & direction == right & arrowRightCount > 2) {
 					acceleration = 60;
+					System.out.println("KeyDetect8");
 				}
 
 				// Pause
@@ -241,52 +200,17 @@ public class Snake {
 				// Exit during playing the game
 				if (pressedKey.getKind() == Key.Kind.Escape) {
 					exitMsg(terminal, terminalSize, score, snakeBody, snakeFood, snakeHead);
-				}
+				}				
 			}
-			pressedKey = terminal.readInput();
-			if (pressedKey != null) {
-				// System.out.println(pressedKey);
-				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
-					if (direction != down)
-						direction = up;
-						upPressed = true;
-						arrowUpCount++;
-						arrowDownCount = 0;
-						arrowLeftCount = 0;
-						arrowRightCount = 0;
-				}
-				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
-					if (direction != up)
-						direction = down;
-						downPressed = true;
-						arrowUpCount = 0;
-						arrowDownCount++;
-						arrowLeftCount = 0;
-						arrowRightCount = 0;
-				}
-				if (pressedKey.getKind() == Key.Kind.ArrowLeft) {
-					if (direction != right)
-						direction = left;
-						leftPressed  = true;
-						arrowUpCount = 0;
-						arrowDownCount = 0;
-						arrowLeftCount++;
-						arrowRightCount = 0;
-				}
-				if (pressedKey.getKind() == Key.Kind.ArrowRight) {
-					if (direction != left)
-						direction = right;
-						rightPressed = true;
-						arrowUpCount = 0;
-						arrowDownCount = 0;
-						arrowLeftCount = 0;
-						arrowRightCount++;
-				}
-			}	
+			// This's to stop accumulation of input keys, when you hold a arrow key. 
+			if (score>14) {
+			Key pressedKeyDisable = terminal.readInput();
+			}
+			
 			// The snake moves
 			Position newDirection = directions[direction];
 			snakeHead = new Position(snakeHead.col + newDirection.col, snakeHead.row + newDirection.row);
-
+			
 			// The snake can die
 			boolean snakeSuicide = false;
 			boolean crashedIntoWall = false;
@@ -312,9 +236,10 @@ public class Snake {
 			Position removeLast = snakeBody.poll();
 			terminal.moveCursor(removeLast.col, removeLast.row);
 			terminal.putCharacter(' ');
-			
+
 			// Eating
 			if (snakeHead.col == snakeFood.col && snakeHead.row == snakeFood.row) {
+				//	Turn on for speed grow up (+2)
 //				snakeBody.offer(new Position(snakeFood.col, snakeFood.row));
 				score++;
 				printSnakeBody(terminal, snakeBody, snakeHead);
@@ -324,6 +249,8 @@ public class Snake {
 				avelableKeys(terminal, terminalSize);
 			}
 			speed=speedUp(speed, score);
+
+			// Change time delay if acceleration is >0
 			if (speed==acceleration){
 				delay(speed);	
 			} else if (speed!=acceleration){
@@ -336,11 +263,10 @@ public class Snake {
 				win(terminal, terminalSize);
 				break;
 			}
-
 		}
 	}
 
-	// Print to console (terminal)
+	// Prints String to console (terminal)
 	private static void write(String text, Terminal terminal, boolean infoLengh) {
 		boolean printStringLenth = infoLengh;
 		char[] stringToChar = text.toCharArray();
@@ -351,7 +277,8 @@ public class Snake {
 			System.out.println("Printed text: " + text + ", (length: " + stringToChar.length + ")");
 		}
 	}
-
+	
+	// Prints snake
 	public static Position printSnakeBody(Terminal terminal, Queue<Position> snakeBody,
 			Position snakeHeadNewPosition) {
 		Position snakeHead;
@@ -371,6 +298,7 @@ public class Snake {
 		return snakeHead;
 	}
 
+	// Prints food
 	public static Position printSnakeFood(Terminal terminal, TerminalSize terminalSize,
 			ArrayList<Position> borderLines, Queue<Position> snakeBody) {
 		Position foodPosition;
@@ -396,6 +324,8 @@ public class Snake {
 		terminal.putCharacter('@');
 		return foodPosition;
 	}
+	
+	// Display info for some parameters 
 	public static void infoGameEngine (Terminal terminal, TerminalSize terminalSize,
 			Position snakeFood, Queue<Position> snakeBody, Position snakeHead, short speed) {
 		System.out.println("Terminal size: \nColumns - "+terminalSize.getColumns()+", Rows - "+terminalSize.getRows());
@@ -406,6 +336,7 @@ public class Snake {
 
 	}
 	
+	//Prints playing field
 	public static ArrayList<Position> printBorders (Terminal terminal, TerminalSize terminalSize, short score) {
 		// Borderlines of the playing field
 		ArrayList<Position> borderLines = new ArrayList<Position>();
@@ -431,7 +362,7 @@ public class Snake {
 			terminal.moveCursor(i.col, i.row);
 			terminal.putCharacter('-');
 		}
-
+		// Dislpay score
 		terminal.moveCursor(4, 0);
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
@@ -439,6 +370,8 @@ public class Snake {
 		levelPrint(score, terminal);
 		return borderLines;
 	}
+	
+	// Time interval to refresh the screen
 	private static void delay(int speed) {
 		try {
 			Thread.sleep(speed);
@@ -446,7 +379,7 @@ public class Snake {
 			e.printStackTrace();
 		}
 	}
-
+	// The snake flashing, when dying
 	public static void gameOver(Terminal terminal, TerminalSize terminalSize, Position snakeHead,
 			ArrayList<Position> borderLines, Queue<Position> snakeBody, short score) {
 		for (int flashTimes = 1; flashTimes < 10; flashTimes++) {
@@ -461,7 +394,7 @@ public class Snake {
 		delay(350);
 		}
 	}
-	
+	// Prints massage for Game over
 	public static void gameOverMsg (Terminal terminal, TerminalSize terminalSize, short score) {
 		String[][] sad = { { "	                                               " },
 				{ "	   /██████   /██████  /██      /██ /████████   " },
@@ -500,7 +433,7 @@ public class Snake {
 		write("Your score: " + score, terminal, true);
 		restartOrExitChoise(terminal, terminalSize);
 	}
-
+	// exit during the play
 	public static void exitMsg(Terminal terminal, TerminalSize terminalSize, short score, Queue<Position> snakeBody,
 			Position snakeFood, Position snakeHead) {
 		terminal.clearScreen();
@@ -574,6 +507,8 @@ public class Snake {
 		}
 		
 	}
+	
+	// Turns off the terminal & application
 	public static void turnOff (Terminal terminal) {
 		terminal.exitPrivateMode();
 		System.exit(0);
