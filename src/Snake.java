@@ -29,7 +29,9 @@ public class Snake {
 		short score = 0;
 		short winningScore = 60;
 		short acceleration = speed;
-		boolean difficultyHard;
+		boolean difficultyHard = false;
+		long foodTimeStart = System.currentTimeMillis();
+		long foodExpiringTime = 20000;
 
 		/*
 		 * Setting the Lanterna Terminal (New Console)
@@ -40,6 +42,7 @@ public class Snake {
 		terminal.enterPrivateMode();
 		TerminalSize terminalSize = terminal.getTerminalSize();
 		terminal.setCursorVisible(false);
+		
 		
 		// Choose difficulty
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 24, terminalSize.getRows() / 2 - 2);
@@ -57,11 +60,14 @@ public class Snake {
 			if (pressedKey != null) {
 				System.out.println(pressedKey);
 				if (pressedKey.getCharacter() == 'h') {
+					System.out.println("Natisnahte hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 					difficultyHard = true;
+					System.out.println(difficultyHard);
 					break;
 				}
 				if (pressedKey.getCharacter() == 'e') {
 					difficultyHard = false;
+					System.out.println("Lesno NIVO");
 					break;
 				}
 				if (pressedKey.getKind() == Key.Kind.Escape) {
@@ -119,8 +125,8 @@ public class Snake {
 		
 		// Print first snakeFood (random position)
 		Position snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
-//		terminal.putCharacter('@');
 		avelableKeys(terminal, terminalSize);
+		
 		// Game engine info
 		infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead, speed);
 		byte arrowUpCount = 0;
@@ -131,6 +137,7 @@ public class Snake {
 			acceleration=speed;
 			Key pressedKey = terminal.readInput();
 			if (pressedKey != null) {
+				System.out.println(pressedKey);
 				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
 					if (direction != down) {
 						direction = up;
@@ -138,7 +145,6 @@ public class Snake {
 						arrowDownCount = 0;
 						arrowLeftCount = 0;
 						arrowRightCount = 0;
-						System.out.println("KeyDetect1");
 					}
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowDown) {
@@ -148,7 +154,6 @@ public class Snake {
 						arrowDownCount++;
 						arrowLeftCount = 0;
 						arrowRightCount = 0;
-						System.out.println("KeyDetect2");
 					}
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowLeft) {
@@ -158,7 +163,6 @@ public class Snake {
 						arrowDownCount = 0;
 						arrowLeftCount++;
 						arrowRightCount = 0;
-						System.out.println("KeyDetect3");
 					}
 				}
 
@@ -169,27 +173,22 @@ public class Snake {
 						arrowDownCount = 0;
 						arrowLeftCount = 0;
 						arrowRightCount++;
-						System.out.println("KeyDetect4");
 					}
 				}
 				// acceleration
 				if (pressedKey.getKind() == Key.Kind.ArrowUp & direction == up & arrowUpCount > 2) {
 					acceleration = 100;
-					System.out.println("KeyDetect5");
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowDown & direction == down & arrowDownCount > 2) {
 					acceleration = 100;
-					System.out.println("KeyDetect6");
 
 				}
 				if (pressedKey.getKind() == Key.Kind.ArrowLeft & direction == left & arrowLeftCount > 2) {
 					acceleration = 60;
-					System.out.println("KeyDetect7");
 				}
 
 				if (pressedKey.getKind() == Key.Kind.ArrowRight & direction == right & arrowRightCount > 2) {
 					acceleration = 60;
-					System.out.println("KeyDetect8");
 				}
 
 				// Pause
@@ -260,7 +259,6 @@ public class Snake {
 				Toolkit.getDefaultToolkit().beep();
 				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score);
 				gameOverMsg(terminal, terminalSize, score);
-
 			}
 			snakeHead = printSnakeBody(terminal, snakeBody, snakeHead);
 			Position removeLast = snakeBody.poll();
@@ -274,11 +272,30 @@ public class Snake {
 				score++;
 				printSnakeBody(terminal, snakeBody, snakeHead);
 				snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
+				foodTimeStart = System.currentTimeMillis();
 				printBorders(terminal, terminalSize, score);
 				infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead, speed);
 				avelableKeys(terminal, terminalSize);
+				foodExpiringTime = 14000 - levelPrint(score, terminal)*50;
 			}
 			speed=speedUp(speed, score);
+			
+			// Expiring food
+			if (difficultyHard) {
+				long foodTimeEnd = System.currentTimeMillis();
+				if ( foodTimeEnd - foodTimeStart > foodExpiringTime){
+				System.out.println("Expired");
+				terminal.moveCursor(snakeFood.col, snakeFood.row);
+				terminal.applyBackgroundColor(Terminal.Color.BLACK);
+				terminal.putCharacter(' ');
+				snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
+//				terminal.putCharacter('@');
+				score--;
+				printBorders(terminal, terminalSize, score);
+				foodTimeStart = System.currentTimeMillis();
+			}
+//				foodExpiring(terminal, terminalSize, snakeFood, foodTimeEnd, foodTimeStart, foodExpiringTime, score, borderLines, snakeBody);
+			}
 
 			// Change time delay if acceleration is >0
 			if (speed==acceleration){
@@ -288,10 +305,12 @@ public class Snake {
 			}
 			
 			// Winning score
-			if (score==winningScore) {
-				delay(1500);
-				win(terminal, terminalSize);
-				break;
+			if (difficultyHard == false) {
+				if (score == winningScore) {
+					delay(1500);
+					win(terminal, terminalSize);
+					break;
+				}
 			}
 		}
 	}
@@ -313,7 +332,6 @@ public class Snake {
 			Position snakeHeadNewPosition) {
 		Position snakeHead;
 		snakeBody.offer(snakeHeadNewPosition);
-		
 		snakeHead = snakeHeadNewPosition;
 		for (Position segmentOfSnake : snakeBody) {
 			terminal.applyForegroundColor(Terminal.Color.YELLOW);
@@ -363,7 +381,6 @@ public class Snake {
 		System.out.println("Snake head coordinates: "+snakeHead.col+", "+snakeHead.row);
 		System.out.println("Snake food coordinates: "+snakeFood.col+", "+snakeFood.row);
 		System.out.println("Current speed: " + speed);
-
 	}
 	
 	//Prints playing field
@@ -392,7 +409,7 @@ public class Snake {
 			terminal.moveCursor(i.col, i.row);
 			terminal.putCharacter('-');
 		}
-		// Dislpay score
+		// Display score
 		terminal.moveCursor(4, 0);
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
@@ -409,6 +426,7 @@ public class Snake {
 			e.printStackTrace();
 		}
 	}
+	
 	// The snake flashing, when dying
 	public static void gameOver(Terminal terminal, TerminalSize terminalSize, Position snakeHead,
 			ArrayList<Position> borderLines, Queue<Position> snakeBody, short score) {
@@ -416,7 +434,6 @@ public class Snake {
 			if (flashTimes % 2 == 0) {
 				printBorders(terminal, terminalSize, score);
 				printSnakeBody(terminal, snakeBody, snakeHead);
-
 			} else if (flashTimes % 2 != 0) {
 				terminal.clearScreen();
 				printBorders(terminal, terminalSize, score);
@@ -424,6 +441,7 @@ public class Snake {
 		delay(350);
 		}
 	}
+	
 	// Prints massage for Game over
 	public static void gameOverMsg (Terminal terminal, TerminalSize terminalSize, short score) {
 		String[][] sad = { { "	                                               " },
@@ -463,6 +481,7 @@ public class Snake {
 		write("Your score: " + score, terminal, true);
 		restartOrExitChoise(terminal, terminalSize);
 	}
+	
 	// exit during the play
 	public static void exitMsg(Terminal terminal, TerminalSize terminalSize, short score, Queue<Position> snakeBody,
 			Position snakeFood, Position snakeHead) {
@@ -481,7 +500,6 @@ public class Snake {
 					terminal.exitPrivateMode();
 					System.exit(0);
 				}
-
 				System.out.println(pressedKey);
 				if (pressedKey.getCharacter() == 'y') {
 					terminal.clearScreen();
@@ -549,7 +567,6 @@ public class Snake {
 		terminal.applyForegroundColor(Terminal.Color.BLACK);
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("\"Escape\" for Exit.  \"Enter\" to Pause the game.", terminal, false);	
-	
 	}
 	
 	public static Position reDrawSnake(Terminal terminal, Queue<Position> snakeBody,
@@ -634,33 +651,55 @@ public class Snake {
 		return speedUp;
 		
 	}
-	public static void levelPrint (short score, Terminal terminal) {
-		byte level=1;
-		if (score>4 & score < 10) {
-			level=2;
+
+	public static byte levelPrint(short score, Terminal terminal) {
+		byte level = 1;
+		if (score > 4 & score < 10) {
+			level = 2;
 		} else if (score > 9 & score < 15) {
-			level=3;
+			level = 3;
 		} else if (score > 14 & score < 20) {
-			level=4;
+			level = 4;
 		} else if (score > 19 & score < 30) {
-			level=5;
+			level = 5;
 		} else if (score > 29 & score < 45) {
-			level=6;
+			level = 6;
 		} else if (score > 44 & score < 55) {
-			level=7;
+			level = 7;
 		} else if (score > 54) {
 			level=8;
 		} 
-		
 		terminal.moveCursor(86, 0);
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
 		terminal.applyBackgroundColor(Terminal.Color.BLUE);
 		write("Level: " + level, terminal, false);
+		return level;
 	}
 
 	public static Key pressedKeys (Terminal terminal) {
 		Key pressed = terminal.readInput();
 		return pressed;
+	}
+	
+	public static ArrayList<Position> innerWall (Terminal terminal, TerminalSize terminalSize) {
+		// Borderlines of the playing field
+		ArrayList<Position> innerWall = new ArrayList<Position>();
+		return innerWall;
+	}
+	
+	public static long foodExpiring(Terminal terminal, TerminalSize terminalSize, Position snakeFood, long foodTimeEnd,
+			long foodTimeStart, long foodExpiringTime, short score, ArrayList<Position> borderLines, Queue<Position> snakeBody) {
+		if (foodTimeEnd - foodTimeStart > foodExpiringTime) {
+			System.out.println("Expired");
+			terminal.moveCursor(snakeFood.col, snakeFood.row);
+			terminal.applyBackgroundColor(Terminal.Color.BLACK);
+			terminal.putCharacter(' ');
+			snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
+			score--;
+			printBorders(terminal, terminalSize, score);
+			foodTimeStart = System.currentTimeMillis();
+				}
+		return foodTimeStart;
 	}
 }
 	
