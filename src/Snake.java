@@ -32,6 +32,7 @@ public class Snake {
 		boolean difficultyHard = false;
 		long foodTimeStart = System.currentTimeMillis();
 		long foodExpiringTime = 20000;
+		byte foodBlinkingOption = 1;
 
 		/*
 		 * Setting the Lanterna Terminal (New Console)
@@ -280,21 +281,20 @@ public class Snake {
 			}
 			speed=speedUp(speed, score);
 			
-			// Expiring food
+			// difficulty: Hard
 			if (difficultyHard) {
 				long foodTimeEnd = System.currentTimeMillis();
-				if ( foodTimeEnd - foodTimeStart > foodExpiringTime){
-				System.out.println("Expired");
-				terminal.moveCursor(snakeFood.col, snakeFood.row);
-				terminal.applyBackgroundColor(Terminal.Color.BLACK);
-				terminal.putCharacter(' ');
-				snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
-//				terminal.putCharacter('@');
-				score--;
-				printBorders(terminal, terminalSize, score);
-				foodTimeStart = System.currentTimeMillis();
-			}
-//				foodExpiring(terminal, terminalSize, snakeFood, foodTimeEnd, foodTimeStart, foodExpiringTime, score, borderLines, snakeBody);
+				if (foodTimeEnd - foodTimeStart > foodExpiringTime - 3000) {
+					foodBlinkingOption = foodBlinking(terminal, terminalSize, snakeFood, foodBlinkingOption);
+				}
+				// Expiring food
+				if (foodTimeEnd - foodTimeStart > foodExpiringTime) {
+					foodExpiring(terminal, terminalSize, snakeFood);
+					snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
+					score--;
+					printBorders(terminal, terminalSize, score);
+					foodTimeStart = System.currentTimeMillis();
+				}
 			}
 
 			// Change time delay if acceleration is >0
@@ -687,19 +687,29 @@ public class Snake {
 		return innerWall;
 	}
 	
-	public static long foodExpiring(Terminal terminal, TerminalSize terminalSize, Position snakeFood, long foodTimeEnd,
-			long foodTimeStart, long foodExpiringTime, short score, ArrayList<Position> borderLines, Queue<Position> snakeBody) {
-		if (foodTimeEnd - foodTimeStart > foodExpiringTime) {
-			System.out.println("Expired");
+	public static void foodExpiring(Terminal terminal, TerminalSize terminalSize, Position snakeFood) {
+		terminal.moveCursor(snakeFood.col, snakeFood.row);
+		terminal.applyBackgroundColor(Terminal.Color.BLACK);
+		terminal.putCharacter(' ');
+	}
+
+	public static byte foodBlinking(Terminal terminal, TerminalSize terminalSize, Position snakeFood,
+			byte foodBlinking) {
+		switch (foodBlinking) {
+		case 1:
 			terminal.moveCursor(snakeFood.col, snakeFood.row);
-			terminal.applyBackgroundColor(Terminal.Color.BLACK);
-			terminal.putCharacter(' ');
-			snakeFood = printSnakeFood(terminal, terminalSize, borderLines, snakeBody);
-			score--;
-			printBorders(terminal, terminalSize, score);
-			foodTimeStart = System.currentTimeMillis();
-				}
-		return foodTimeStart;
+			terminal.applyForegroundColor(Terminal.Color.BLACK);
+			terminal.putCharacter('@');
+			foodBlinking = 0;
+			break;
+		case 0:
+			terminal.moveCursor(snakeFood.col, snakeFood.row);
+			terminal.applyForegroundColor(Terminal.Color.RED);
+			terminal.putCharacter('@');
+			foodBlinking = 1;
+			break;
+		}
+		return foodBlinking;
 	}
 }
 	
