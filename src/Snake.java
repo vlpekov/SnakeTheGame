@@ -33,7 +33,8 @@ public class Snake {
 		long foodTimeStart = System.currentTimeMillis();
 		long foodExpiringTime = 20000;
 		byte foodBlinkingOption = 1;
-
+		boolean eatedFood = false;
+		ArrayList<Position> innerWall = new ArrayList<Position>();
 		/*
 		 * Setting the Lanterna Terminal (New Console)
 		 * https://code.google.com/archive/p/lanterna/wikis/UsingTerminal.wiki
@@ -244,6 +245,7 @@ public class Snake {
 			// The snake can die
 			boolean snakeSuicide = false;
 			boolean crashedIntoWall = false;
+			boolean crashedIntoInnerWall = false;
 			for (Position i : snakeBody) {
 				if (snakeHead.row == i.row && snakeHead.col == i.col) {
 					snakeSuicide = true;
@@ -252,13 +254,19 @@ public class Snake {
 			for (Position i : borderLines) {
 				if (snakeHead.row == i.row && snakeHead.col == i.col) {
 					crashedIntoWall = true;
+				} 
+			}
+			for (Position i : innerWall) {
+				if (snakeHead.row == i.row && snakeHead.col == i.col) {
+					crashedIntoInnerWall = true;
 				}
 			}
 			
+			
 			// Game over; Restart/Exit option;
-			if (crashedIntoWall || snakeSuicide) {
+			if (crashedIntoWall || snakeSuicide || crashedIntoInnerWall) {
 				Toolkit.getDefaultToolkit().beep();
-				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score);
+				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score, innerWall);
 				gameOverMsg(terminal, terminalSize, score);
 			}
 			snakeHead = printSnakeBody(terminal, snakeBody, snakeHead);
@@ -278,11 +286,16 @@ public class Snake {
 				infoGameEngine(terminal, terminalSize, snakeFood, snakeBody, snakeHead, speed);
 				avelableKeys(terminal, terminalSize);
 				foodExpiringTime = 14000 - levelPrint(score, terminal)*50;
+				eatedFood = true;
 			}
 			speed=speedUp(speed, score);
 			
 			// difficulty: Hard
 			if (difficultyHard) {
+				if (eatedFood) {
+					innerWall = addNewInnerWallFragment(terminal, terminalSize, snakeBody, snakeFood, snakeHead, innerWall);
+					eatedFood = false;
+				}
 				long foodTimeEnd = System.currentTimeMillis();
 				if (foodTimeEnd - foodTimeStart > foodExpiringTime - 3000) {
 					foodBlinkingOption = foodBlinking(terminal, terminalSize, snakeFood, foodBlinkingOption);
@@ -294,6 +307,9 @@ public class Snake {
 					score--;
 					printBorders(terminal, terminalSize, score);
 					foodTimeStart = System.currentTimeMillis();
+					for (int i=1; i<4; i++) {
+						addNewInnerWallFragment(terminal, terminalSize, snakeBody, snakeFood, snakeHead, innerWall);
+					}
 				}
 			}
 
@@ -429,11 +445,12 @@ public class Snake {
 	
 	// The snake flashing, when dying
 	public static void gameOver(Terminal terminal, TerminalSize terminalSize, Position snakeHead,
-			ArrayList<Position> borderLines, Queue<Position> snakeBody, short score) {
+			ArrayList<Position> borderLines, Queue<Position> snakeBody, short score, ArrayList<Position> innerWall) {
 		for (int flashTimes = 1; flashTimes < 10; flashTimes++) {
 			if (flashTimes % 2 == 0) {
 				printBorders(terminal, terminalSize, score);
 				printSnakeBody(terminal, snakeBody, snakeHead);
+				printInnerWall(innerWall, terminal);
 			} else if (flashTimes % 2 != 0) {
 				terminal.clearScreen();
 				printBorders(terminal, terminalSize, score);
@@ -681,12 +698,48 @@ public class Snake {
 		return pressed;
 	}
 	
-	public static ArrayList<Position> innerWall (Terminal terminal, TerminalSize terminalSize) {
-		// Borderlines of the playing field
-		ArrayList<Position> innerWall = new ArrayList<Position>();
+	
+	public static ArrayList<Position> addNewInnerWallFragment (Terminal terminal, TerminalSize terminalSize, Queue<Position> snakeBody,
+		Position snakeFood, Position snakeHead, ArrayList<Position> innerWall) {
+		Position innerWallPosition;
+		int innerWallColumn;
+		int innerWallRow;
+		boolean isInSnake;
+		boolean isOverFood;
+		do {
+			isInSnake = false;
+			isOverFood = false;
+			// from 1 to terminalSize.getColumns() - 1
+			innerWallColumn = (int) (Math.random() * ((terminalSize.getColumns() - 2)))+1;
+			// from 1 to terminalSize.getRows() - 1
+			innerWallRow = (int) (Math.random() * ((terminalSize.getRows() - 2)))+1;
+			innerWallPosition = new Position(innerWallColumn, innerWallRow);
+
+			for (Position i : snakeBody) {
+				if (i.row == innerWallRow && i.col == innerWallColumn) {
+					isInSnake = true;
+				}
+				if (snakeFood.row == innerWallRow && snakeFood.col == innerWallColumn) {
+					isOverFood = true;
+				}
+			}
+		} while (isInSnake & isOverFood);
+		innerWall.add(new Position(innerWallPosition.col, innerWallPosition.row));
+		
+		
+		printInnerWall(innerWall, terminal);
 		return innerWall;
 	}
 	
+	public static void printInnerWall (ArrayList<Position> innerWall, Terminal terminal) {
+		for (Position i : innerWall) {
+			terminal.applyForegroundColor(Terminal.Color.BLUE);
+			terminal.applyBackgroundColor(Terminal.Color.BLUE);
+			terminal.moveCursor(i.col, i.row);
+			terminal.putCharacter('-');
+		}
+	}
+		
 	public static void foodExpiring(Terminal terminal, TerminalSize terminalSize, Position snakeFood) {
 		terminal.moveCursor(snakeFood.col, snakeFood.row);
 		terminal.applyBackgroundColor(Terminal.Color.BLACK);
