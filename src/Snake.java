@@ -140,6 +140,7 @@ public class Snake {
 		byte arrowLeftCount = 0;
 		byte arrowRightCount = 0;
 		long foodTimeStart = System.currentTimeMillis();
+		long pauseTime = 0;
 		while (true) {
 			acceleration=speed;
 			Key pressedKey = terminal.readInput();
@@ -202,6 +203,7 @@ public class Snake {
 				if (pressedKey.getKind() == Key.Kind.Enter) {
 					printBorders(terminal, terminalSize, score);
 					Toolkit.getDefaultToolkit().beep();
+					pauseTime = System.currentTimeMillis();
 					terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 - 2);
 					terminal.applyForegroundColor(Terminal.Color.WHITE);
 					terminal.applyBackgroundColor(Terminal.Color.BLACK);
@@ -231,6 +233,8 @@ public class Snake {
 						delay(500);
 						flashingText = !flashingText;
 					}
+					pauseTime = System.currentTimeMillis() - pauseTime;
+					foodTimeStart += pauseTime;
 					avelableKeys(terminal, terminalSize);
 				}
 				// Exit during playing the game
