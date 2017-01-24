@@ -282,9 +282,9 @@ public class Snake {
 					}
 					bestScore = readBestScoreFromRecordFile();
 					if (score > bestScore) {
+						newRecordМessage(terminal, terminalSize);
 //						delay(3000);
 						bestScoreName = enterNameForNewHightScore(terminal, terminalSize, score);
-						terminal.setCursorVisible(false);
 						bestScore = score;
 						saveNewBestScore(bestScore, bestScoreName);
 					}
@@ -833,10 +833,12 @@ public class Snake {
 	boolean clearStringBuilder = true;
 	while (true) {
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 17, terminalSize.getRows() - 6);
-		write("Enter your name: ", terminal, true);
-		terminal.setCursorVisible(true);
+		write("Enter your name: ", terminal, false);
 		Key typeingKey = terminal.readInput();
-			delay(1);
+			delay(100);
+			if (typeingKey == null) {
+				continue;
+			}
 			if (clearStringBuilder) {
 				playerName.setLength(0);
 			}
@@ -846,8 +848,7 @@ public class Snake {
 				char inputChar = typeingKey.getCharacter();
 				terminal.moveCursor(moveCursorRigt, terminalSize.getRows() - 6);
 				playerName.append(inputChar);
-				write(playerName.toString(), terminal, true);
-				System.out.println(moveCursorRigt + " moveCursorRigt terminalSize.getColumns() / 2 =" +(terminalSize.getColumns() / 2));
+				write(playerName.toString(), terminal, false);
 				}
 				if (typeingKey.getKind() == Kind.Backspace) {
 					if (playerName.length() < 1) {
@@ -857,9 +858,11 @@ public class Snake {
 					terminal.clearScreen();
 					gameOverMsg(terminal, terminalSize, score);
 					terminal.moveCursor(terminalSize.getColumns() / 2 - 17, terminalSize.getRows() - 6);
-					write("Enter your name: ", terminal, true);
+					write("Enter your name: ", terminal, false);
 					terminal.moveCursor(moveCursorRigt, terminalSize.getRows() - 6);
-					write(playerName.toString(), terminal, true);
+					write(playerName.toString(), terminal, false);
+					typeingKey = null;
+					continue;
 				}
 				if (typeingKey.getKind() == Kind.Enter) {
 					break;
@@ -872,19 +875,20 @@ public class Snake {
 
 	public static void newRecordМessage(Terminal terminal, TerminalSize terminalSize) {
 		boolean flashingText = false;
-		for (int i = 1; i < 11; i++) {
+		for (int i = 1; i < 12; i++) {
 			delay(300);
 			if (flashingText == false) {
 				terminal.applyForegroundColor(Terminal.Color.GREEN);
-				terminal.moveCursor(terminalSize.getColumns() / 2 - 7, 2);
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 6, 2);
 				write("New high score!", terminal, false);
 			} else if (flashingText == true) {
-				terminal.moveCursor(terminalSize.getColumns() / 2 - 7, 2);
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 6, 2);
 				terminal.applyForegroundColor(Terminal.Color.BLACK);
 				write("New high score!", terminal, false);
 			}
 			flashingText=!flashingText;
 		}
+		terminal.applyForegroundColor(Terminal.Color.WHITE);
 	}
 }
 	
