@@ -282,11 +282,8 @@ public class Snake {
 					}
 					bestScore = readBestScoreFromRecordFile();
 					if (score > bestScore) {
-						delay(3000);
-						terminal.moveCursor(terminalSize.getColumns() / 2 - 17, terminalSize.getRows() - 6);
-						write("Enter your name: ", terminal, true);
-						terminal.setCursorVisible(true);
-						bestScoreName = readTextFromTerminalToString(terminal, terminalSize, score);
+//						delay(3000);
+						bestScoreName = enterNameForNewHightScore(terminal, terminalSize, score);
 						terminal.setCursorVisible(false);
 						bestScore = score;
 						saveNewBestScore(bestScore, bestScoreName);
@@ -830,11 +827,14 @@ public class Snake {
 			exc.printStackTrace();
 		}
 	}
-	public static String readTextFromTerminalToString (Terminal terminal, TerminalSize terminalSize, short score) {
+	public static String enterNameForNewHightScore (Terminal terminal, TerminalSize terminalSize, short score) {
 	StringBuilder playerName = new StringBuilder(); 
 	int moveCursorRigt = (terminalSize.getColumns() / 2);
 	boolean clearStringBuilder = true;
 	while (true) {
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 17, terminalSize.getRows() - 6);
+		write("Enter your name: ", terminal, true);
+		terminal.setCursorVisible(true);
 		Key typeingKey = terminal.readInput();
 			delay(1);
 			if (clearStringBuilder) {
@@ -854,12 +854,12 @@ public class Snake {
 						continue;
 					}
 					playerName.setLength(playerName.length() - 1);
-					terminal.moveCursor(moveCursorRigt, terminalSize.getRows() - 6);
 					terminal.clearScreen();
+					gameOverMsg(terminal, terminalSize, score);
 					terminal.moveCursor(terminalSize.getColumns() / 2 - 17, terminalSize.getRows() - 6);
 					write("Enter your name: ", terminal, true);
+					terminal.moveCursor(moveCursorRigt, terminalSize.getRows() - 6);
 					write(playerName.toString(), terminal, true);
-					gameOverMsg(terminal, terminalSize, score);
 				}
 				if (typeingKey.getKind() == Kind.Enter) {
 					break;
@@ -868,6 +868,23 @@ public class Snake {
 		}
 	String bestScoreName = playerName.toString();
 	return bestScoreName;
+	}
+
+	public static void newRecordМessage(Terminal terminal, TerminalSize terminalSize) {
+		boolean flashingText = false;
+		for (int i = 1; i < 11; i++) {
+			delay(300);
+			if (flashingText == false) {
+				terminal.applyForegroundColor(Terminal.Color.GREEN);
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 7, 2);
+				write("New high score!", terminal, false);
+			} else if (flashingText == true) {
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 7, 2);
+				terminal.applyForegroundColor(Terminal.Color.BLACK);
+				write("New high score!", terminal, false);
+			}
+			flashingText=!flashingText;
+		}
 	}
 }
 	
