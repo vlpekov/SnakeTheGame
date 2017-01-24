@@ -36,7 +36,6 @@ public class Snake {
 		short winningScore = 60;
 		short acceleration = speed;
 		boolean difficultyHard = false;
-		long foodTimeStart = System.currentTimeMillis();
 		long foodExpiringTime = 20000;
 		byte foodBlinkingOption = 1;
 		boolean eatedFood = false;
@@ -140,11 +139,12 @@ public class Snake {
 		byte arrowDownCount = 0;
 		byte arrowLeftCount = 0;
 		byte arrowRightCount = 0;
+		long foodTimeStart = System.currentTimeMillis();
 		while (true) {
 			acceleration=speed;
 			Key pressedKey = terminal.readInput();
 			if (pressedKey != null) {
-				System.out.println(pressedKey);
+//				System.out.println(pressedKey);
 				if (pressedKey.getKind() == Key.Kind.ArrowUp) {
 					if (direction != down) {
 						direction = up;
@@ -270,7 +270,7 @@ public class Snake {
 			
 			// Game over; Restart/Exit option;
 			if (crashedIntoWall || snakeSuicide || crashedIntoInnerWall) {
-				Key pressedKeyDisable = terminal.readInput();
+//				Key pressedKeyDisable = terminal.readInput();
 				Toolkit.getDefaultToolkit().beep();
 				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score, innerWall);
 				gameOverMsg(terminal, terminalSize, score);
