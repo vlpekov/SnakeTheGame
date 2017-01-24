@@ -1,4 +1,9 @@
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +12,7 @@ import java.util.Queue;
 
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.input.Key;
+import com.googlecode.lanterna.input.Key.Kind;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
@@ -35,6 +41,8 @@ public class Snake {
 		byte foodBlinkingOption = 1;
 		boolean eatedFood = false;
 		ArrayList<Position> innerWall = new ArrayList<Position>();
+		short bestScore = 0;
+		String bestScoreName = null;
 		/*
 		 * Setting the Lanterna Terminal (New Console)
 		 * https://code.google.com/archive/p/lanterna/wikis/UsingTerminal.wiki
@@ -268,6 +276,24 @@ public class Snake {
 				Toolkit.getDefaultToolkit().beep();
 				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score, innerWall);
 				gameOverMsg(terminal, terminalSize, score);
+				// Save best score to file
+				if (difficultyHard) {
+					File file = new File("BestScore.sav");
+					if (!file.exists()) {
+						createFileForBestScore();
+					}
+					bestScore = readBestScoreFromRecordFile();
+					if (score > bestScore) {
+						terminal.moveCursor(terminalSize.getColumns() / 2 - 16, terminalSize.getRows() - 6);
+						write("Enter your name: ", terminal, true);
+						terminal.setCursorVisible(true);
+						bestScoreName = readTextFromTerminalToString(terminal, terminalSize);
+						terminal.setCursorVisible(false);
+						bestScore = score;
+						saveNewBestScore(bestScore, bestScoreName);
+					}
+				}
+				restartOrExitChoise(terminal, terminalSize);
 			}
 			snakeHead = printSnakeBody(terminal, snakeBody, snakeHead);
 			Position removeLast = snakeBody.poll();
@@ -496,7 +522,7 @@ public class Snake {
 		terminal.applyBackgroundColor(Terminal.Color.BLACK);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 5, 3);
 		write("Your score: " + score, terminal, true);
-		restartOrExitChoise(terminal, terminalSize);
+		
 	}
 	
 	// exit during the play
@@ -611,11 +637,11 @@ public class Snake {
 	}
 	
 	public static void restartOrExitChoise (Terminal terminal, TerminalSize terminalSize) {
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows()-5);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows()-4);
 		write("Press Escape for EXIT", terminal, true);
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows()-4);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows()-3);
 		write("or", terminal, true);
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows()-3);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows()-2);
 		write("Press Enter to play again", terminal, false);
 		while (true) {
 			Key keyAfterGameOver = terminal.readInput();
@@ -763,6 +789,62 @@ public class Snake {
 			break;
 		}
 		return foodBlinking;
+	}
+
+	public static short readBestScoreFromRecordFile() {
+		short bestScore = 0;
+		try {
+			FileInputStream saveFile = new FileInputStream("BestScore.sav");
+			ObjectInputStream save = new ObjectInputStream(saveFile);
+			bestScore = (Short) save.readObject();
+			save.close();
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+		return bestScore;
+	}
+
+	public static void saveNewBestScore(short bestScore, String bestName) {
+		try {
+			FileOutputStream saveFile = new FileOutputStream("BestScore.sav");
+			ObjectOutputStream save = new ObjectOutputStream(saveFile);
+			save.writeObject(bestScore);
+			save.writeObject(bestName);
+			save.close();
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+		System.out.println(bestScore + " bestScore");
+		System.out.println(bestName + " bestName");
+	}
+
+	public static void createFileForBestScore() {
+		short bestScore = 0;
+		String bestName = "no record";
+		try {
+			FileOutputStream saveFile = new FileOutputStream("BestScore.sav");
+			ObjectOutputStream save = new ObjectOutputStream(saveFile);
+			save.writeObject(bestScore);
+			save.writeObject(bestName);
+			save.close();
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+	}
+	public static String readTextFromTerminalToString (Terminal terminal, TerminalSize terminalSize) {
+	String bestScoreName = "";
+	int moveCursorRigt = 0;
+	while (true) {
+		moveCursorRigt++;
+		Key pressedKey = terminal.readInput();
+		if (pressedKey == null) continue;
+		if (pressedKey.getKind() == Kind.Enter) break;
+		char inputChar = pressedKey.getCharacter();
+		terminal.moveCursor(terminalSize.getColumns() / 2 + moveCursorRigt, terminalSize.getRows() - 6);
+		bestScoreName = bestScoreName + inputChar;
+		write(bestScoreName, terminal, false);
+	}
+	return bestScoreName;
 	}
 }
 	
