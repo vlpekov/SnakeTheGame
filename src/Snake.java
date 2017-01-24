@@ -70,14 +70,11 @@ public class Snake {
 			if (pressedKey != null) {
 				System.out.println(pressedKey);
 				if (pressedKey.getCharacter() == 'h') {
-					System.out.println("Natisnahte hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 					difficultyHard = true;
-					System.out.println(difficultyHard);
 					break;
 				}
 				if (pressedKey.getCharacter() == 'e') {
 					difficultyHard = false;
-					System.out.println("Lesno NIVO");
 					break;
 				}
 				if (pressedKey.getKind() == Key.Kind.Escape) {
@@ -273,6 +270,7 @@ public class Snake {
 			
 			// Game over; Restart/Exit option;
 			if (crashedIntoWall || snakeSuicide || crashedIntoInnerWall) {
+				Key pressedKeyDisable = terminal.readInput();
 				Toolkit.getDefaultToolkit().beep();
 				gameOver(terminal, terminalSize, snakeHead, borderLines, snakeBody, score, innerWall);
 				gameOverMsg(terminal, terminalSize, score);
@@ -284,10 +282,11 @@ public class Snake {
 					}
 					bestScore = readBestScoreFromRecordFile();
 					if (score > bestScore) {
-						terminal.moveCursor(terminalSize.getColumns() / 2 - 16, terminalSize.getRows() - 6);
+						delay(3000);
+						terminal.moveCursor(terminalSize.getColumns() / 2 - 17, terminalSize.getRows() - 6);
 						write("Enter your name: ", terminal, true);
 						terminal.setCursorVisible(true);
-						bestScoreName = readTextFromTerminalToString(terminal, terminalSize);
+						bestScoreName = readTextFromTerminalToString(terminal, terminalSize, score);
 						terminal.setCursorVisible(false);
 						bestScore = score;
 						saveNewBestScore(bestScore, bestScoreName);
@@ -831,19 +830,43 @@ public class Snake {
 			exc.printStackTrace();
 		}
 	}
-	public static String readTextFromTerminalToString (Terminal terminal, TerminalSize terminalSize) {
-	String bestScoreName = "";
-	int moveCursorRigt = 0;
+	public static String readTextFromTerminalToString (Terminal terminal, TerminalSize terminalSize, short score) {
+	StringBuilder playerName = new StringBuilder(); 
+	int moveCursorRigt = (terminalSize.getColumns() / 2);
+	boolean clearStringBuilder = true;
 	while (true) {
-		moveCursorRigt++;
-		Key pressedKey = terminal.readInput();
-		if (pressedKey == null) continue;
-		if (pressedKey.getKind() == Kind.Enter) break;
-		char inputChar = pressedKey.getCharacter();
-		terminal.moveCursor(terminalSize.getColumns() / 2 + moveCursorRigt, terminalSize.getRows() - 6);
-		bestScoreName = bestScoreName + inputChar;
-		write(bestScoreName, terminal, false);
-	}
+		Key typeingKey = terminal.readInput();
+			delay(1);
+			if (clearStringBuilder) {
+				playerName.setLength(0);
+			}
+			if (typeingKey != null) {
+				if (typeingKey.getKind() == Kind.NormalKey) {
+					clearStringBuilder = false;
+				char inputChar = typeingKey.getCharacter();
+				terminal.moveCursor(moveCursorRigt, terminalSize.getRows() - 6);
+				playerName.append(inputChar);
+				write(playerName.toString(), terminal, true);
+				System.out.println(moveCursorRigt + " moveCursorRigt terminalSize.getColumns() / 2 =" +(terminalSize.getColumns() / 2));
+				}
+				if (typeingKey.getKind() == Kind.Backspace) {
+					if (playerName.length() < 1) {
+						continue;
+					}
+					playerName.setLength(playerName.length() - 1);
+					terminal.moveCursor(moveCursorRigt, terminalSize.getRows() - 6);
+					terminal.clearScreen();
+					terminal.moveCursor(terminalSize.getColumns() / 2 - 17, terminalSize.getRows() - 6);
+					write("Enter your name: ", terminal, true);
+					write(playerName.toString(), terminal, true);
+					gameOverMsg(terminal, terminalSize, score);
+				}
+				if (typeingKey.getKind() == Kind.Enter) {
+					break;
+				}
+			}
+		}
+	String bestScoreName = playerName.toString();
 	return bestScoreName;
 	}
 }
