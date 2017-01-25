@@ -528,7 +528,7 @@ public class Snake {
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
 		terminal.applyBackgroundColor(Terminal.Color.BLACK);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 5, 3);
-		write("Your score: " + score, terminal, true);
+		write("Your score: " + score, terminal, false);
 		
 	}
 	
@@ -639,15 +639,15 @@ public class Snake {
 	terminal.applyForegroundColor(Terminal.Color.YELLOW);
 	terminal.applyBackgroundColor(Terminal.Color.BLACK);
 	terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2-1);
-	write("You just won The Game!!!", terminal, true);
+	write("You just won The Game!!!", terminal, false);
 	restartOrExitChoise(terminal, terminalSize);
 	}
 	
 	public static void restartOrExitChoise (Terminal terminal, TerminalSize terminalSize) {
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows()-4);
-		write("Press Escape for EXIT", terminal, true);
+		write("Press Escape for EXIT", terminal, false);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 1, terminalSize.getRows()-3);
-		write("or", terminal, true);
+		write("or", terminal, false);
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 13, terminalSize.getRows()-2);
 		write("Press Enter to play again", terminal, false);
 		while (true) {
