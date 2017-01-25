@@ -285,13 +285,20 @@ public class Snake {
 						createFileForBestScore();
 					}
 					bestScore = readBestScoreFromRecordFile();
+					bestScoreName = readBestScoreNameFromRecordFile();
 					if (score > bestScore) {
 						newRecordМessage(terminal, terminalSize);
 //						delay(3000);
 						bestScoreName = enterNameForNewHightScore(terminal, terminalSize, score);
 						bestScore = score;
 						saveNewBestScore(bestScore, bestScoreName);
+					} else if (score < bestScore) {
+						terminal.moveCursor(terminalSize.getColumns() / 2 - 15, 2);
+						terminal.applyForegroundColor(Terminal.Color.YELLOW);
+						terminal.applyBackgroundColor(Terminal.Color.BLACK);
+						write("Best score: " + bestScore + ", Player: " + bestScoreName, terminal, false);
 					}
+						
 				}
 				restartOrExitChoise(terminal, terminalSize);
 			}
@@ -830,7 +837,9 @@ public class Snake {
 		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
+		System.out.println(bestName);
 	}
+	
 	public static String enterNameForNewHightScore (Terminal terminal, TerminalSize terminalSize, short score) {
 	StringBuilder playerName = new StringBuilder(); 
 	int moveCursorRigt = (terminalSize.getColumns() / 2);
@@ -893,6 +902,22 @@ public class Snake {
 			flashingText=!flashingText;
 		}
 		terminal.applyForegroundColor(Terminal.Color.WHITE);
+	}
+	
+	public static String readBestScoreNameFromRecordFile() {
+		Short bestScore=0;
+		String bestName = "";
+		try {
+			FileInputStream saveFile = new FileInputStream("BestScore.sav");
+			ObjectInputStream save = new ObjectInputStream(saveFile);
+			bestScore = (Short) save.readObject();
+			bestName = (String) save.readObject();
+			System.out.println(bestName);
+			save.close();
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+		return bestName;
 	}
 }
 	
