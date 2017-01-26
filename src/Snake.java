@@ -144,43 +144,11 @@ public class Snake {
 						arrowRightCount, acceleration, direction, up, down, left, right);
 
 				// Pause
-				if (pressedKey.getKind() == Key.Kind.Enter) {
-					printBorders(terminal, terminalSize, score, borderLines);
-					Toolkit.getDefaultToolkit().beep();
-					pauseTime = System.currentTimeMillis();
-					terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 - 2);
-					terminal.applyForegroundColor(Terminal.Color.WHITE);
-					terminal.applyBackgroundColor(Terminal.Color.BLACK);
-					write("P A U S E", terminal, false);
-					boolean flashingText = true;
-					while (true) {
-						Key pauseKey = terminal.readInput();
-						if (flashingText == false) {
-							terminal.applyForegroundColor(Terminal.Color.CYAN);
-							terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2);
-							write("Press any key to continue", terminal, false);
-
-						} else if (flashingText == true) {
-							terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2);
-							terminal.applyForegroundColor(Terminal.Color.BLACK);
-							write("Press any key to continue", terminal, false);
-						}
-						if (pauseKey != null) {
-							terminal.clearScreen();
-							printBorders(terminal, terminalSize, score, borderLines);
-							reDrawSnake(terminal, snakeBody, snakeHead);
-							terminal.moveCursor(snakeFood.col, snakeFood.row);
-							terminal.applyForegroundColor(Terminal.Color.GREEN);
-							terminal.putCharacter('@');
-							break;
-						}
-						delay(500);
-						flashingText = !flashingText;
-					}
-					pauseTime = System.currentTimeMillis() - pauseTime;
-					foodTimeStart += pauseTime;
-					avelableKeys(terminal, terminalSize);
-				}
+				foodTimeStart = pauseMode(terminal, terminalSize, pressedKey, snakeHead, borderLines, snakeBody, score,
+						innerWall, snakeFood, pauseTime, foodTimeStart);
+				
+				System.out.println(foodTimeStart);
+				
 				// Exit during playing the game
 				if (pressedKey.getKind() == Key.Kind.Escape) {
 					exitMsg(terminal, terminalSize, score, snakeBody, snakeFood, snakeHead, borderLines);
@@ -508,6 +476,61 @@ public class Snake {
 			Thread.sleep(speed);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	// Pause mode
+	public static long pauseMode (Terminal terminal, TerminalSize terminalSize, Key pressedKey, Position snakeHead,
+			ArrayList<Position> borderLines, Queue<Position> snakeBody, short score, ArrayList<Position> innerWall,
+			Position snakeFood, long pauseTime, long foodTimeStart) {
+		if (pressedKey.getKind() == Key.Kind.Enter) {
+			pauseTime = System.currentTimeMillis();
+			pauseMessage(terminal, terminalSize, snakeHead, borderLines, snakeBody, score, innerWall,
+					snakeFood);
+			pauseTime = System.currentTimeMillis() - pauseTime;
+			avelableKeys(terminal, terminalSize);
+		}
+		foodTimeStart += pauseTime;
+		return foodTimeStart;
+	}
+	
+	
+	// Pause message
+	public static void pauseMessage(Terminal terminal, TerminalSize terminalSize, Position snakeHead,
+			ArrayList<Position> borderLines, Queue<Position> snakeBody, short score, ArrayList<Position> innerWall,
+			Position snakeFood) {
+		printBorders(terminal, terminalSize, score, borderLines);
+		Toolkit.getDefaultToolkit().beep();
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 - 2);
+		terminal.applyForegroundColor(Terminal.Color.WHITE);
+		terminal.applyBackgroundColor(Terminal.Color.BLACK);
+		write("P A U S E", terminal, false);
+		boolean flashingText = true;
+		while (true) {
+			Key pauseKey = terminal.readInput();
+			if (flashingText == false) {
+				terminal.applyForegroundColor(Terminal.Color.CYAN);
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2);
+				write("Press any key to continue", terminal, false);
+
+			} else if (flashingText == true) {
+				terminal.moveCursor(terminalSize.getColumns() / 2 - 12, terminalSize.getRows() / 2);
+				terminal.applyForegroundColor(Terminal.Color.BLACK);
+				write("Press any key to continue", terminal, false);
+			}
+			if (pauseKey != null) {
+				terminal.clearScreen();
+				printBorders(terminal, terminalSize, score, borderLines);
+				reDrawSnake(terminal, snakeBody, snakeHead);
+				printInnerWall(innerWall, terminal);
+				terminal.moveCursor(snakeFood.col, snakeFood.row);
+				terminal.applyBackgroundColor(Terminal.Color.BLACK);
+				terminal.applyForegroundColor(Terminal.Color.GREEN);
+				terminal.putCharacter('@');
+				break;
+			}
+			delay(500);
+			flashingText = !flashingText;
 		}
 	}
 	
