@@ -59,28 +59,10 @@ public class Snake {
 		terminal.clearScreen();	
 		
 		// Start the game or exit
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() / 2 - 2);
-		write("Press any key to START ", terminal, true);
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() - 2);
-		terminal.applyForegroundColor(Terminal.Color.BLUE);
-		write("or Press Escape to EXIT", terminal, true);
-
-		while (true) {
-			Key pressedKey = terminal.readInput();
-			// time delay - CPU friendly
-			delay(1);
-			if (pressedKey != null) {
-				System.out.println(pressedKey);
-				if (pressedKey.getKind() == Key.Kind.Escape) {
-					turnOff(terminal);
-					break;
-				} else {
-					break;
-				}
-				
-			}
-		}
+		startGameOrExit(terminal, terminalSize);
 		terminal.clearScreen();
+		
+		// Drawing the playing field
 		ArrayList<Position> borderLines = generateBorders(terminal, terminalSize);
 		printBorders(terminal, terminalSize, score, borderLines);
 
@@ -97,10 +79,7 @@ public class Snake {
 		byte up = 3;
 		
 		// Snake body
-		Queue<Position> snakeBody = new LinkedList<Position>();
-		for (int segment = 2; segment <= 7; segment++) {
-			snakeBody.offer(new Position(segment, terminalSize.getRows() / 2));
-		}
+		Queue<Position> snakeBody = generateSnakeBody(terminal, terminalSize);
 		Position snakeHead = new Position(7, terminalSize.getRows() / 2);
 		printSnakeBody(terminal, snakeBody, snakeHead);
 		
@@ -116,6 +95,7 @@ public class Snake {
 		byte arrowRightCount = 0;
 		long foodTimeStart = System.currentTimeMillis();
 		long pauseTime = 0;
+		
 		while (true) {
 			acceleration=speed;
 			Key pressedKey = terminal.readInput();
@@ -158,21 +138,10 @@ public class Snake {
 						arrowRightCount++;
 					}
 				}
+				
 				// acceleration
-				if (pressedKey.getKind() == Key.Kind.ArrowUp & direction == up & arrowUpCount > 2) {
-					acceleration = 100;
-				}
-				if (pressedKey.getKind() == Key.Kind.ArrowDown & direction == down & arrowDownCount > 2) {
-					acceleration = 100;
-
-				}
-				if (pressedKey.getKind() == Key.Kind.ArrowLeft & direction == left & arrowLeftCount > 2) {
-					acceleration = 60;
-				}
-
-				if (pressedKey.getKind() == Key.Kind.ArrowRight & direction == right & arrowRightCount > 2) {
-					acceleration = 60;
-				}
+				acceleration = acceleration(pressedKey, arrowUpCount, arrowDownCount, arrowLeftCount,
+						arrowRightCount, acceleration, direction, up, down, left, right);
 
 				// Pause
 				if (pressedKey.getKind() == Key.Kind.Enter) {
@@ -339,6 +308,7 @@ public class Snake {
 		}
 	}
 
+	
 	// Prints String to console (terminal)
 	private static void write(String text, Terminal terminal, boolean infoLengh) {
 		boolean printStringLenth = infoLengh;
@@ -352,14 +322,14 @@ public class Snake {
 	}
 	
 	// Choose difficulty
-	public static boolean difficultyChoice (Terminal terminal, TerminalSize terminalSize) {
+	public static boolean difficultyChoice(Terminal terminal, TerminalSize terminalSize) {
 		boolean difficultyHard = false;
 		terminal.moveCursor(terminalSize.getColumns() / 2 - 24, terminalSize.getRows() / 2 - 2);
 		write("Choose difficulty:", terminal, true);
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows()  / 2-2);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 - 2);
 		terminal.applyForegroundColor(Terminal.Color.GREEN);
 		write("e - easy", terminal, true);
-		terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 -1);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 4, terminalSize.getRows() / 2 - 1);
 		terminal.applyForegroundColor(Terminal.Color.RED);
 		write("h - hard", terminal, true);
 		while (true) {
@@ -381,8 +351,39 @@ public class Snake {
 					break;
 				}
 			}
-		}	
+		}
 		return difficultyHard;
+	}
+	
+	public static void startGameOrExit(Terminal terminal, TerminalSize terminalSize) {
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() / 2 - 2);
+		write("Press any key to START ", terminal, true);
+		terminal.moveCursor(terminalSize.getColumns() / 2 - 11, terminalSize.getRows() - 2);
+		terminal.applyForegroundColor(Terminal.Color.BLUE);
+		write("or Press Escape to EXIT", terminal, true);
+		while (true) {
+			Key pressedKey = terminal.readInput();
+			// time delay - CPU friendly
+			delay(1);
+			if (pressedKey != null) {
+				System.out.println(pressedKey);
+				if (pressedKey.getKind() == Key.Kind.Escape) {
+					turnOff(terminal);
+					break;
+				} else {
+					break;
+				}
+
+			}
+		}
+	}
+	
+	public static Queue<Position> generateSnakeBody(Terminal terminal, TerminalSize terminalSize) {
+		Queue<Position> snakeBody = new LinkedList<Position>();
+		for (int segment = 2; segment <= 7; segment++) {
+			snakeBody.offer(new Position(segment, terminalSize.getRows() / 2));
+		}
+		return snakeBody;
 	}
 	
 	// Prints snake
@@ -441,7 +442,7 @@ public class Snake {
 		System.out.println("Current speed: " + speed);
 	}
 	
-	//Prints playing field
+	//Generates playing field
 	public static ArrayList<Position> generateBorders (Terminal terminal, TerminalSize terminalSize) {
 		// Borderlines of the playing field
 		ArrayList<Position> borderLines = new ArrayList<Position>();
@@ -479,6 +480,26 @@ public class Snake {
 		write("Score: " + score, terminal, false);
 		levelPrint(score, terminal);
 		
+	}
+	
+	// acceleration
+	public static short acceleration(Key pressedKey, byte arrowUpCount, byte arrowDownCount, byte arrowLeftCount,
+			byte arrowRightCount, short acceleration, byte direction, byte up, byte down, byte left, byte right) {
+		if (pressedKey.getKind() == Key.Kind.ArrowUp & direction == up & arrowUpCount > 2) {
+			acceleration = 100;
+		}
+		if (pressedKey.getKind() == Key.Kind.ArrowDown & direction == down & arrowDownCount > 2) {
+			acceleration = 100;
+
+		}
+		if (pressedKey.getKind() == Key.Kind.ArrowLeft & direction == left & arrowLeftCount > 2) {
+			acceleration = 60;
+		}
+
+		if (pressedKey.getKind() == Key.Kind.ArrowRight & direction == right & arrowRightCount > 2) {
+			acceleration = 60;
+		}
+		return acceleration;
 	}
 	
 	// Time interval to refresh the screen
